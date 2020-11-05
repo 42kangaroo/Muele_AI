@@ -6,3 +6,8 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+/modules.xml
+/vcs.xml
+/inspectionProfiles/
+/Mill_AI.iml
+/misc.xml
