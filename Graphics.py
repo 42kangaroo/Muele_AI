@@ -148,8 +148,8 @@ class ModeratedGraphics(object):
         while finished == 0:
             self.graphics.reloadEnv()
             pos = self.mcts.best_action(self.gamma, multiplikator=self.num_sims, max_depth=self.max_depth)
-            self.mcts.setNewRoot(State(self.env))
             self.graphics.makeMove(pos)
+            self.mcts.setNewRoot(State(self.env))
             event, values = self.graphics.read(True)
             if self.eventHandler(event):
                 return
@@ -229,5 +229,5 @@ class ModeratedGraphics(object):
         self.mcts.setNewRoot(self.root)
 
 
-MCGraphics = ModeratedGraphics(gamma=0.9, max_depth=10, num_sims=750)
+MCGraphics = ModeratedGraphics(gamma=0.9, max_depth=12, num_sims=750)
 MCGraphics.playLoop()

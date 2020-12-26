@@ -44,7 +44,7 @@ class State(object):
                               self.state[6], self.state[7], self.state[8], self.state[9])
         self.env.makeMove(action)
         child_node = State(self.env, action, parent=self)
-        self.children = np.append(self.children, child_node)
+        self.children = np.append(self.children, [child_node])
         return child_node
 
     def rollout(self, discount, max_depth=20, root=None):
@@ -67,15 +67,16 @@ class State(object):
             if iteration == 0:
                 self.move_value = self.env.makeMove(action)[1]
             else:
-                reward[last_player] += self.env.makeMove(action)[1] / (-(max_depth - depth + iteration) + max_depth)
+                reward[last_player] += self.env.makeMove(action)[1]
             if self.env.isFinished() != 0:
                 depth = iteration
                 break
+            iteration += 1
         if self.parent:
             if self.env.isFinished() == self.parent.state[1]:
-                reward[self.parent.state[1]] += discount ** depth * 5
+                reward[self.parent.state[1]] += discount ** depth * 10
             elif self.env.isFinished() == -self.parent.state[1]:
-                reward[-self.parent.state[1]] += discount ** depth * 5
+                reward[-self.parent.state[1]] += discount ** depth * 10
             elif self.env.isFinished() == 2:
                 reward[self.parent.state[1]] -= discount ** depth * 0.5
         return reward
@@ -90,7 +91,7 @@ class State(object):
 
     def backpropagate(self, result, max_depth):
         current_node = self
-        iters = (-current_node.depth(None)) + max_depth
+        iters = 1
         while current_node.parent:
             current_node.n += 1
             result[current_node.parent.state[1]] += current_node.move_value / iters
@@ -104,6 +105,7 @@ class State(object):
         self.q = np.sum([state.q for state in states])
         self.n = np.sum([state.n for state in states])
         childrenAll: np.ndarray = np.array([state.children for state in states], dtype=object).transpose()
+        children: np.ndarray
         for children in childrenAll:
             valididx: np.ndarray = ~(children == None)
             if len(valididx) >= 1:
@@ -134,7 +136,7 @@ class MonteCarloTreeSearch(object):
         """
 
         with mp.Pool(parallel) as pool:
-            result = pool.starmap(self.train, [(gamma, multiplikator, max_depth) for _ in range(parallel)])
+            result = pool.starmap(self.train, [(gamma, multiplikator, max_depth, i) for i in range(parallel)])
         self.root.mergeChildren(np.array(result))
         # to select best child go for exploitation only
         self.root.env.setFullState(self.root.state[0], self.root.state[1], self.root.state[2], self.root.state[3],
@@ -142,7 +144,7 @@ class MonteCarloTreeSearch(object):
                                    self.root.state[8], self.root.state[9])
         return self.root.best_child(c_param=0.).last_move
 
-    def train(self, gamma, multiplikator=500, max_depth=20):
+    def train(self, gamma, multiplikator=500, max_depth=20, seed=None):
         """
         get best action of state
         Parameters
@@ -154,7 +156,7 @@ class MonteCarloTreeSearch(object):
         -------
         :returns best child state
         """
-        self.root.random_gen = np.random.Generator(np.random.PCG64())
+        self.root.random_gen = np.random.Generator(np.random.PCG64(seed=seed))
         simulations_number = int(len(self.root.valid_moves) ** 1.2 * multiplikator)
         for i in range(simulations_number):
             v = self._tree_policy(max_depth)
@@ -167,7 +169,7 @@ class MonteCarloTreeSearch(object):
     def setNewRoot(self, node):
         self.root = node
 
-    def _tree_policy(self, max_depth=200, expl=30):
+    def _tree_policy(self, max_depth=20, expl=0.5):
         """
         selects node to run rollout/playout for
         Returns

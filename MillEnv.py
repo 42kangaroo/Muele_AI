@@ -101,9 +101,9 @@ class MillEnv(object):
                         self.winner = 2
                         self.gamePhase = [3, 3]
             elif self.moveNeeded == 3:  # delete opponent checker
-                reward = 1
                 threeInChosenRow: np.ndarray = abs(self.board[self.getInRows(move)].sum(axis=1)) == 3
                 if self.board[move] == -1 * self.isPlaying and ~threeInChosenRow.any():
+                    reward = 1
                     valid = True
                     self.board[move] = 0
                     self.checkerPositions[1 if self.isPlaying == -1 else 0].remove(move)
