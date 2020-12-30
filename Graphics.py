@@ -138,7 +138,7 @@ class ModeratedGraphics(object):
         self.env = MillEnv()
         self.graphics = MillDisplayer(self.env)
         self.graphics.reloadEnv()
-        self.root: State = State(self.env)
+        self.root: State = State(1, self.env)
         self.mcts = MonteCarloTreeSearch(self.root)
 
     def agentPlay(self):
@@ -149,7 +149,7 @@ class ModeratedGraphics(object):
             self.graphics.reloadEnv()
             pos = self.mcts.best_action(self.gamma, multiplikator=self.num_sims, max_depth=self.max_depth)
             self.graphics.makeMove(pos)
-            self.mcts.setNewRoot(State(self.env))
+            self.mcts.setNewRoot(State(1, self.env))
             event, values = self.graphics.read(True)
             if self.eventHandler(event):
                 return
@@ -189,10 +189,10 @@ class ModeratedGraphics(object):
                 self.graphics.activateClick()
             else:
                 self.graphics.deactivateClick()
-                self.root = State(self.env)
+                self.root = State(1, self.env)
                 self.mcts.setNewRoot(self.root)
                 pos = self.mcts.best_action(self.gamma, multiplikator=self.num_sims, max_depth=self.max_depth)
-                self.mcts.setNewRoot(State(self.env))
+                self.mcts.setNewRoot(State(1, self.env))
                 self.graphics.makeMove(pos)
             self.graphics.reloadEnv()
             finished = self.env.isFinished()
@@ -225,7 +225,7 @@ class ModeratedGraphics(object):
 
     def resetMonteCarlo(self):
         self.env.reset()
-        self.root = State(self.env)
+        self.root = State(1, self.env)
         self.mcts.setNewRoot(self.root)
 
 

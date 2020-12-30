@@ -12,7 +12,7 @@ class MillEnv(object):
         self.inHand: list = [9, 9]
         self.onBoard: list = [0, 0]
         self.checkerPositions: list = [[], []]
-        self.selected: int = -1
+        self.selected = None
         self.board: np.ndarray = np.zeros(24)
         self.winner = 0
         self.columns: np.ndarray = np.array(
@@ -94,7 +94,7 @@ class MillEnv(object):
                         self.board[self.getInRows(self.selected)[0][idxToMove[order][0] - 1]] = self.isPlaying
                         self.checkerPositions[1 if self.isPlaying == 1 else 0].append(
                             self.getInRows(self.selected)[0][idxToMove[order][0] - 1])
-                    self.selected = -1
+                    self.selected = None
                     self.moveNeeded = 1
                     self.isPlaying = -self.isPlaying
                     if (self.board == self.previusStates).all(axis=1).any():
@@ -163,7 +163,7 @@ class MillEnv(object):
         self.inHand: list = [9, 9]
         self.onBoard: list = [0, 0]
         self.checkerPositions: list = [[], []]
-        self.selected: int = -1
+        self.selected = None
         self.board: np.ndarray = np.zeros(24)
         self.winner = 0
 

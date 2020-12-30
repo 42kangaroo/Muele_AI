@@ -12,9 +12,9 @@ def lengthenBoard(shortend):
 
 
 def prepareForNetwork(board, player, moveNeeded, gamePhase, selected=None):
-    networkState = np.array([board == 1 * player, board == -1 * player], dtype=int).reshape((2, -1, 3))
-    networkState = np.append(networkState, np.full((1, 8, 3), gamePhase), axis=0)
-    networkState = np.append(networkState, np.full((1, 8, 3), moveNeeded), axis=0)
+    networkState = np.moveaxis(np.array(
+        [board == 1 * player, board == -1 * player, np.full(24, gamePhase), np.full(24, moveNeeded)],
+        dtype=np.float32).reshape((4, 8, 3)), 0, -1)
     if gamePhase > 0 and selected:
-        networkState[0, selected] = 2
+        networkState[selected] = 2
     return networkState
