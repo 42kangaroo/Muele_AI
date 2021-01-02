@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 
 
@@ -16,5 +18,55 @@ def prepareForNetwork(board, player, moveNeeded, gamePhase, selected=None):
         [board == 1 * player, board == -1 * player, np.full(24, gamePhase), np.full(24, moveNeeded)],
         dtype=np.float32).reshape((4, 8, 3)), 0, -1)
     if gamePhase > 0 and selected:
+        if not isinstance(selected, tuple):
+            selected = selected // 3, selected % 3, 0
         networkState[selected] = 2
     return networkState
+
+
+def getSymetries(board: np.ndarray, selected=None):
+    columns = (np.array([[0, 3, 7],
+                         [1, 3, 6],
+                         [2, 3, 5],
+                         [0, 1, 2],
+                         [5, 6, 7],
+                         [2, 4, 5],
+                         [1, 4, 6],
+                         [0, 4, 7]]),
+               np.array([[0, 0, 0],
+                         [0, 1, 0],
+                         [0, 2, 0],
+                         [1, 1, 1],
+                         [1, 1, 1],
+                         [2, 0, 2],
+                         [2, 1, 2],
+                         [2, 2, 2]]))
+    board = board.reshape(8, 3)
+    symetrys = np.array([board, board[::-1], board[:, ::-1], board[::-1, ::-1], board[columns], board[columns][::-1],
+                         board[columns][:, ::-1], board[columns][::-1, ::-1]])
+    selectedArray = None
+    if selected:
+        if not isinstance(selected, tuple):
+            selected = selected // 3, selected % 3
+        selectedTurned = (columns[0][selected], columns[1][selected])
+        selectedArray = [selected, (-selected[0] + 7, selected[1]), (selected[0], -selected[1] + 2),
+                         (-selected[0] + 7, -selected[1] + 2), selectedTurned,
+                         (-selectedTurned[0] + 7, selectedTurned[1]),
+                         (selectedTurned[0], -selectedTurned[1] + 2),
+                         (-selectedTurned[0] + 7, -selectedTurned[1] + 2)]
+    return symetrys, selectedArray
+
+
+def getTargetSymetries(targets: np.ndarray, moveNeeded):
+    if moveNeeded != 2:
+        return getSymetries(targets)[0].reshape(-1, 24)
+    targetsTurned = swapvalues(swapvalues(targets, 0, 3), 1, 2)
+    return [targets, swapvalues(targets, 0, 2), swapvalues(targets, 1, 3), swapvalues(swapvalues(targets, 0, 2), 1, 3),
+            targetsTurned, swapvalues(targetsTurned, 0, 2), swapvalues(targetsTurned, 1, 3),
+            swapvalues(swapvalues(targetsTurned, 0, 2), 1, 3)]
+
+
+def swapvalues(a, idx1, idx2):
+    a = copy.deepcopy(a)
+    a[idx1], a[idx2] = a[idx2], a[idx1]
+    return a
