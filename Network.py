@@ -34,9 +34,10 @@ class Residual_Model(keras.Model):
         self.p_norm = keras.layers.BatchNormalization(axis=1)
         self.p_relu = keras.layers.LeakyReLU()
         self.p_flatten = keras.layers.Flatten()
-        self.p_dense1 = keras.layers.Dense(hidden_size * 4, activation='relu',
+        self.p_dense1 = keras.layers.Dense(hidden_size * 2, activation='relu',
                                            kernel_initializer=keras.initializers.he_normal())
-        self.p_dense2 = keras.layers.Dense(hidden_size * 2, activation='relu',
+        self.p_dropout = keras.layers.Dropout(.2)
+        self.p_dense2 = keras.layers.Dense(hidden_size, activation='relu',
                                            kernel_initializer=keras.initializers.he_normal())
         self.p_out = keras.layers.Dense(num_actions, activation='softmax',
                                         kernel_initializer=keras.initializers.he_normal())
@@ -50,9 +51,10 @@ class Residual_Model(keras.Model):
         self.v_norm = keras.layers.BatchNormalization(axis=1)
         self.v_relu = keras.layers.LeakyReLU()
         self.v_flatten = keras.layers.Flatten()
-        self.v_dense1 = keras.layers.Dense(hidden_size * 4, activation='relu',
+        self.v_dense1 = keras.layers.Dense(hidden_size * 2, activation='relu',
                                            kernel_initializer=keras.initializers.he_normal())
-        self.v_dense2 = keras.layers.Dense(hidden_size * 2, activation='relu',
+        self.v_dropout = keras.layers.Dropout(.2)
+        self.v_dense2 = keras.layers.Dense(hidden_size, activation='relu',
                                            kernel_initializer=keras.initializers.he_normal())
         self.v_out = keras.layers.Dense(1, activation='tanh', kernel_initializer=keras.initializers.he_normal())
 
@@ -75,6 +77,7 @@ class Residual_Model(keras.Model):
         pol = self.p_relu(pol)
         pol = self.p_flatten(pol)
         pol = self.p_dense1(pol)
+        pol = self.p_dropout(pol)
         pol = self.p_dense2(pol)
         pol = self.p_out(pol)
         v = self.v_conv(x)
@@ -82,6 +85,7 @@ class Residual_Model(keras.Model):
         v = self.v_relu(v)
         v = self.v_flatten(v)
         v = self.v_dense1(v)
+        v = self.v_dropout(v)
         v = self.v_dense2(v)
         v = self.v_out(v)
         return pol, v
