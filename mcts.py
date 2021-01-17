@@ -47,7 +47,7 @@ class State(object):
         self.priors[0, self.valid_moves] = self.priors[0, self.valid_moves] * (1 - weight) + noise * weight
 
     def best_child(self, c_param=configs.CPUCT):
-        choices_weights = np.zeros(24)
+        choices_weights = np.full(24, -1.1)
         for idx, node in self.children.items():
             if abs(node.is_terminal_node()) == 1:
                 return node
@@ -77,23 +77,26 @@ class State(object):
                 return child_node, child_node.is_terminal_node()
             val = child_node.setValAndPriors(nnet)
             if generate_empty_nodes(child_node):
-                return child_node.expand(child_node, None)
+                return child_node.expand(child_node.valid_moves[0], None)
             return child_node, val
         return child_node, child_node.w
 
     def setValAndPriors(self, nnet):
-        self.env.setFullState(self.state[0], self.state[1], self.state[2],
-                              self.state[3], self.state[4], self.state[5],
-                              self.state[6], self.state[7], self.state[8],
-                              self.state[9])
-        self.priors, val = nnet(
-            encoders.prepareForNetwork(self.env.board, self.env.isPlaying, self.env.moveNeeded,
-                                       self.env.gamePhase[1 if self.env.isPlaying == 1 else 0],
-                                       self.env.selected))
-        self.priors = self.priors.numpy()
+        if self.is_terminal_node() == 0:
+            self.priors, val = nnet(
+                encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
+                                           [self.state[2][1 if self.env.isPlaying == 1 else 0]], [self.state[7]]))
+            self.priors = self.priors.numpy()
+        else:
+            if self.is_terminal_node() == 2:
+                val = 0
+            else:
+                val = self.is_terminal_node()
+            self.priors = np.zeros((1, 24))
         return val
 
     def backpropagate(self, result):
+        result = result * self.state[1]
         current_node = self
         while current_node:
             current_node.n += 1
@@ -111,18 +114,47 @@ class MonteCarloTreeSearch(object):
         self.depth = depth
         self.memory_size = memory_size
 
-    def generatePlay(self, memory, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
-        """
-        get best action of state
-        Parameters
-        -------
-        :parameter gamma: the discount factor
-        :parameter max_depth: depth to search actions
-        :parameter multiplikator : number of simulations performed to get the best action
-        Returns
-        -------
-        :returns best child state
-        """
+    def generatePlay(self, memory, nnet, index, multiplikator=configs.SIMS_FAKTOR,
+                     exponent=configs.SIMS_EXPONENT):
+        short_term_memory = []
+        for iteration in range(configs.MAX_MOVES):
+            if self.root.is_terminal_node() != 0:
+                break
+            pi = self.search(nnet, multiplikator, exponent)
+            s_states, s_selected = encoders.getSymetries(self.root.state[0], self.root.state[7])
+            s_gamePhase = np.full(8, self.root.state[2][1 if self.root.last_player == 1 else 0])
+            s_player = np.full(8, self.root.last_player)
+            s_moveNeeded = np.full(8, self.root.state[3])
+            s_pi = encoders.getTargetSymetries(pi, self.root.state[3])
+            for state, player, selected, gamePhase, moveNeeded, pi_s in zip(s_states, s_player, s_selected, s_gamePhase,
+                                                                            s_moveNeeded,
+                                                                            s_pi):
+                short_term_memory.append([state, player, selected, gamePhase, moveNeeded, pi_s, None])
+            if self.depth < configs.TURNS_UNTIL_TAU0:
+                self.goToMoveNode(np.random.choice(np.arange(24), p=pi))
+            else:
+                self.goToMoveNode(np.argmax(pi))
+        print(len(short_term_memory), self.root.is_terminal_node())
+        finished = self.root.is_terminal_node()
+        if abs(finished) == 1:
+            pass
+        else:
+            finished = (self.root.state[5][1] - self.root.state[5][0]) / 6
+        short_term_memory = np.array(short_term_memory, dtype=object)
+        short_term_memory[:, 6] = finished * short_term_memory[:, 1]
+        with index.get_lock():
+            idx_val = index.value
+            if idx_val + len(short_term_memory) < self.memory_size:
+                idxs_until_full = None
+                index.value += len(short_term_memory)
+            else:
+                idxs_until_full = self.memory_size - idx_val
+                index.value = len(short_term_memory) - idxs_until_full
+        if idxs_until_full:
+            memory[np.arange(idx_val, self.memory_size)] = short_term_memory[:idxs_until_full]
+            memory[np.arange(len(short_term_memory) - idxs_until_full)] = short_term_memory[idxs_until_full:]
+        else:
+            memory[np.arange(idx_val, idx_val + len(short_term_memory))] = short_term_memory
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
         """
@@ -146,8 +178,9 @@ class MonteCarloTreeSearch(object):
     def goToMoveNode(self, move):
         self.root = self.root.children[move]
         self.root.discardParent()
-        self.root.add_noise()
-        self.depth += 1
+        if self.root.is_terminal_node() == 0:
+            self.root.add_noise()
+            self.depth += 1
 
     def _tree_policy(self, nnet, expl=configs.CPUCT):
         """
@@ -162,4 +195,4 @@ class MonteCarloTreeSearch(object):
                 return current_node.parent.expand(current_node.last_move, nnet)
             else:
                 current_node = current_node.best_child(expl)
-        return current_node
+        return current_node, current_node.w

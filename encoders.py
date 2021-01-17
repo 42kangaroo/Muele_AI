@@ -13,15 +13,18 @@ def lengthenBoard(shortend):
     return board
 
 
-def prepareForNetwork(board, player, moveNeeded, gamePhase, selected=None):
-    networkState = np.moveaxis(np.array(
-        [board == 1 * player, board == -1 * player, np.full(24, gamePhase), np.full(24, moveNeeded)],
-        dtype=np.float32).reshape((4, 8, 3)), 0, -1)
-    if gamePhase > 0 and selected:
-        if not isinstance(selected, tuple):
-            selected = selected // 3, selected % 3, 0
-        networkState[selected] = 2
-    return networkState.reshape(1, 8, 3, 4)
+def prepareForNetwork(boards, player, moveNeeded, gamePhase, selected=None):
+    states = np.array([[board == 1 * play, board == -1 * play, np.full((8, 3), gameP), np.full((8, 3), moveN)] for
+                       board, play, gameP, moveN in
+                       zip(np.array(boards).reshape(-1, 8, 3), player, gamePhase, moveNeeded)], dtype=np.float32)
+    networkState = np.moveaxis(states
+                               , 1, -1)
+    for i, gameP, sel in zip(range(len(gamePhase)), gamePhase, selected):
+        if gameP > 0 and sel:
+            if not isinstance(sel, tuple):
+                sel = sel // 3, sel % 3, 0
+            networkState[i, sel] = 2
+    return networkState.reshape(-1, 8, 3, 4)
 
 
 def getSymetries(board: np.ndarray, selected=None):
@@ -44,7 +47,7 @@ def getSymetries(board: np.ndarray, selected=None):
     board = board.reshape(8, 3)
     symetrys = np.array([board, board[::-1], board[:, ::-1], board[::-1, ::-1], board[columns], board[columns][::-1],
                          board[columns][:, ::-1], board[columns][::-1, ::-1]])
-    selectedArray = None
+    selectedArray = np.full(8, None)
     if selected:
         if not isinstance(selected, tuple):
             selected = selected // 3, selected % 3
