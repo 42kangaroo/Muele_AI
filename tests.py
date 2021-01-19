@@ -124,27 +124,30 @@ class MCTSTest(unittest.TestCase):
         self.mcts.search(self.nnet)
 
     def test_generate_play(self):
-        memory = np.zeros((4800, 7), dtype=object)
+        memory = np.zeros((1000, 7), dtype=object)
         val = mp.Value("L")
         self.mcts.generatePlay(memory, self.nnet, val, 1, 1)
 
     def test_fit_generated(self):
         import keras
-        memory = np.zeros((4800, 7), dtype=object)
+        memory = np.zeros((48000, 7), dtype=object)
         val = mp.Value("L")
-        self.mcts.generatePlay(memory, self.nnet, val, 2, 1.15)
+        self.mcts.generatePlay(memory, self.nnet, val, 8, 1.15)
         policy_out, board_in = np.zeros((val.value, 24), dtype=np.float32), np.zeros((val.value, 8, 3),
                                                                                      dtype=np.float32)
         for idx in range(val.value):
             policy_out[idx], board_in[idx] = memory[idx, 5], memory[idx, 0]
-        tensorbard_callback = keras.callbacks.TensorBoard("TensorBoard", update_freq=2, profile_batch=0)
+        tensorboard_callback = keras.callbacks.TensorBoard("TensorBoard", update_freq=2, profile_batch=0)
         self.nnet.fit(
             encoders.prepareForNetwork(board_in, memory[:val.value, 1], memory[:val.value, 4],
                                        memory[:val.value, 3],
                                        memory[:val.value, 2]),
             {'policy_output': policy_out,
-             'value_output': memory[:val.value, 6].astype(np.float32)}, epochs=1,
-            batch_size=16, callbacks=[tensorbard_callback])
+             'value_output': memory[:val.value, 6].astype(np.float32)}, epochs=5,
+            batch_size=128, callbacks=[tensorboard_callback])
+
+    def test_pit(self):
+        print(self.mcts.pit(self.nnet, self.nnet, -1, 8, 1.15))
 
     @unittest.skip("mulitpocessing doesn't work, infinite loop")
     def test_multiprocessing(self):

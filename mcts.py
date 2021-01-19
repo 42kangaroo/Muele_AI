@@ -73,7 +73,7 @@ class State(object):
         child_node: State = self.children[move]
         if not child_node.is_visited:
             child_node.is_visited = True
-            if child_node.is_terminal_node() != 0:
+            if abs(child_node.is_terminal_node()) == 1:
                 return child_node, child_node.is_terminal_node()
             val = child_node.setValAndPriors(nnet)
             if generate_empty_nodes(child_node):
@@ -155,6 +155,22 @@ class MonteCarloTreeSearch(object):
             memory[np.arange(len(short_term_memory) - idxs_until_full)] = short_term_memory[idxs_until_full:]
         else:
             memory[np.arange(idx_val, idx_val + len(short_term_memory))] = short_term_memory
+
+    def pit(self, oldNet, newNet, begins, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
+        for iteration in range(configs.MAX_MOVES):
+            if self.root.is_terminal_node() != 0:
+                print(iteration)
+                return self.root.is_terminal_node() * begins
+            if self.root.state[1] * begins == 1:
+                actualnet = newNet
+            else:
+                actualnet = oldNet
+            pi = self.search(actualnet, multiplikator, exponent)
+            if self.depth < configs.TURNS_UNTIL_TAU0:
+                self.goToMoveNode(np.random.choice(np.arange(24), p=pi))
+            else:
+                self.goToMoveNode(np.argmax(pi))
+        return 2
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
         """

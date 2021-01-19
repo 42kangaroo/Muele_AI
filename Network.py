@@ -1,38 +1,8 @@
+from keras.layers import Layer
+
+
 def build_input(filters, kernel_size, input_layer):
     from tensorflow import keras
-    class ResidualLayer(keras.layers.Layer):
-        def __init__(self, filters, kernel_size):
-            from tensorflow import keras
-            super(ResidualLayer, self).__init__()
-            self.conv1 = keras.layers.Conv2D(
-                filters=filters
-                , kernel_size=kernel_size
-                , padding='same'
-                , use_bias=False
-                , activation='linear'
-            )
-            self.norm1 = keras.layers.BatchNormalization(axis=1)
-            self.relu1 = keras.layers.LeakyReLU()
-            self.conv2 = keras.layers.Conv2D(
-                filters=filters
-                , kernel_size=kernel_size
-                , padding='same'
-                , use_bias=False
-                , activation='linear'
-            )
-            self.norm2 = keras.layers.BatchNormalization(axis=1)
-            self.add = keras.layers.Add()
-            self.relu2 = keras.layers.LeakyReLU()
-
-        def call(self, inputs, **kwargs):
-            x = self.conv1(inputs)
-            x = self.norm1(x)
-            x = self.relu1(x)
-            x = self.conv2(x)
-            x = self.norm2(x)
-            x = self.add([x, inputs])
-            x = self.relu2(x)
-            return x
 
     conv = keras.layers.Conv2D(
         filters=filters
@@ -111,3 +81,39 @@ def get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num
                   loss_weights=[0.5, 0.5],
                   metrics=['accuracy'])
     return model
+
+
+class ResidualLayer(Layer):
+    def __init__(self, filters, kernel_size):
+        from tensorflow import keras
+        super(ResidualLayer, self).__init__()
+        self.conv1 = keras.layers.Conv2D(
+            filters=filters
+            , kernel_size=kernel_size
+            , padding='same'
+            , use_bias=False
+            , activation='linear'
+        )
+        self.norm1 = keras.layers.BatchNormalization(axis=1)
+
+        self.relu1 = keras.layers.LeakyReLU()
+        self.conv2 = keras.layers.Conv2D(
+            filters=filters
+            , kernel_size=kernel_size
+            , padding='same'
+            , use_bias=False
+            , activation='linear'
+        )
+        self.norm2 = keras.layers.BatchNormalization(axis=1)
+        self.add = keras.layers.Add()
+        self.relu2 = keras.layers.LeakyReLU()
+
+    def call(self, inputs, **kwargs):
+        x = self.conv1(inputs)
+        x = self.norm1(x)
+        x = self.relu1(x)
+        x = self.conv2(x)
+        x = self.norm2(x)
+        x = self.add([x, inputs])
+        x = self.relu2(x)
+        return x
