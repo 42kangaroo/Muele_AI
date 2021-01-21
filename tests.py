@@ -116,23 +116,26 @@ class MCTSTest(unittest.TestCase):
         self.env = MillEnv.MillEnv()
         import Network
         self.nnet = Network.get_net(96, 3, 256, 4, 1, 24, (8, 3, 4))
-        self.mcts = mcts.MonteCarloTreeSearch(mcts.State(np.zeros((1, 24)), 0, self.env.isPlaying, self.env), 48000)
+        self.mcts = mcts.MonteCarloTreeSearch(mcts.State(np.zeros((1, 24)), 0, self.env.isPlaying, self.env))
 
+    @unittest.skip("ray is used")
     def test_search(self):
         val = self.mcts.root.setValAndPriors(self.nnet)
         self.mcts.root.backpropagate(val)
         self.mcts.search(self.nnet)
 
+    @unittest.skip("ray is used")
     def test_generate_play(self):
         memory = np.zeros((1000, 7), dtype=object)
         val = mp.Value("L")
         self.mcts.generatePlay(memory, self.nnet, val, 1, 1)
 
+    @unittest.skip("ray is used")
     def test_fit_generated(self):
         import keras
         memory = np.zeros((48000, 7), dtype=object)
         val = mp.Value("L")
-        self.mcts.generatePlay(memory, self.nnet, val, 8, 1.15)
+        self.mcts.generatePlay(memory, self.nnet, val, 1, 1)
         policy_out, board_in = np.zeros((val.value, 24), dtype=np.float32), np.zeros((val.value, 8, 3),
                                                                                      dtype=np.float32)
         for idx in range(val.value):
@@ -145,13 +148,15 @@ class MCTSTest(unittest.TestCase):
             {'policy_output': policy_out,
              'value_output': memory[:val.value, 6].astype(np.float32)}, epochs=5,
             batch_size=128, callbacks=[tensorboard_callback])
+        self.nnet.save("models/test_save")
 
+    @unittest.skip("ray is used")
     def test_pit(self):
         print(self.mcts.pit(self.nnet, self.nnet, -1, 8, 1.15))
 
     @unittest.skip("mulitpocessing doesn't work, infinite loop")
     def test_multiprocessing(self):
-        file = "file://alphaMemoryMulti"
+        file = "file_mem://alphaMemoryMulti"
         memory = SharedArray.create(file, 48000, tuple)
         val = mp.Value("L")
         processes = [mp.Process(target=self.mcts.generatePlay, args=(file, self.nnet, val, 1, 1)) for i in range(8)]

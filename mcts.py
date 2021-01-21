@@ -1,4 +1,5 @@
 import numpy as np
+import ray
 
 import configs
 import encoders
@@ -96,7 +97,8 @@ class State(object):
         return val
 
     def backpropagate(self, result):
-        result = result * self.state[1]
+        if self.is_terminal_node() == 0:
+            result = result * self.state[1]
         current_node = self
         while current_node:
             current_node.n += 1
@@ -109,13 +111,16 @@ class State(object):
 
 
 class MonteCarloTreeSearch(object):
-    def __init__(self, node, memory_size=configs.MIN_MEMORY, depth=0):
+    def __init__(self, node, depth=0):
         self.root: State = node
         self.depth = depth
-        self.memory_size = memory_size
 
-    def generatePlay(self, memory, nnet, index, multiplikator=configs.SIMS_FAKTOR,
+    def generatePlay(self, memory, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
+        import Network
+        nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                               configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+        nnet.load_weights(nnet_weights_path)
         short_term_memory = []
         for iteration in range(configs.MAX_MOVES):
             if self.root.is_terminal_node() != 0:
@@ -142,24 +147,21 @@ class MonteCarloTreeSearch(object):
             finished = (self.root.state[5][1] - self.root.state[5][0]) / 6
         short_term_memory = np.array(short_term_memory, dtype=object)
         short_term_memory[:, 6] = finished * short_term_memory[:, 1]
-        with index.get_lock():
-            idx_val = index.value
-            if idx_val + len(short_term_memory) < self.memory_size:
-                idxs_until_full = None
-                index.value += len(short_term_memory)
-            else:
-                idxs_until_full = self.memory_size - idx_val
-                index.value = len(short_term_memory) - idxs_until_full
-        if idxs_until_full:
-            memory[np.arange(idx_val, self.memory_size)] = short_term_memory[:idxs_until_full]
-            memory[np.arange(len(short_term_memory) - idxs_until_full)] = short_term_memory[idxs_until_full:]
-        else:
-            memory[np.arange(idx_val, idx_val + len(short_term_memory))] = short_term_memory
+        memory.addToMem.remote(short_term_memory)
 
-    def pit(self, oldNet, newNet, begins, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
+    def pit(self, oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
+        import Network
+        oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                 configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+        newNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                 configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+        oldNet.load_weights(oldNet_path)
+        newNet.load_weights(newNet_path)
         for iteration in range(configs.MAX_MOVES):
             if self.root.is_terminal_node() != 0:
-                print(iteration)
+                print(iteration, self.root.is_terminal_node())
+                if self.root.is_terminal_node() == 2:
+                    return 0
                 return self.root.is_terminal_node() * begins
             if self.root.state[1] * begins == 1:
                 actualnet = newNet
@@ -170,7 +172,7 @@ class MonteCarloTreeSearch(object):
                 self.goToMoveNode(np.random.choice(np.arange(24), p=pi))
             else:
                 self.goToMoveNode(np.argmax(pi))
-        return 2
+        return 0
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
         """
@@ -206,9 +208,25 @@ class MonteCarloTreeSearch(object):
         """
 
         current_node = self.root
-        while not current_node.is_terminal_node():
+        while True:
             if not current_node.is_visited and current_node.parent:
                 return current_node.parent.expand(current_node.last_move, nnet)
             else:
                 current_node = current_node.best_child(expl)
-        return current_node, current_node.w
+            if current_node.is_terminal_node() != 0:
+                return current_node.parent.expand(current_node.last_move, None)
+
+
+@ray.remote
+def execute_generate_play(memory, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
+                          exponent=configs.SIMS_EXPONENT):
+    env = MillEnv()
+    mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, env.isPlaying, env))
+    mcts.generatePlay(memory, nnet_weights_path, multiplikator, exponent)
+
+
+@ray.remote
+def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
+    env = MillEnv()
+    mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, env.isPlaying, env))
+    return mcts.pit(oldNet_path, newNet_path, begins, multiplikator, exponent)

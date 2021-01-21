@@ -117,3 +117,6 @@ class ResidualLayer(Layer):
         x = self.add([x, inputs])
         x = self.relu2(x)
         return x
+
+    def get_config(self):
+        return {}
