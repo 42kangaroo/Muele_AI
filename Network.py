@@ -1,3 +1,4 @@
+import tensorflow as tf
 from keras.layers import Layer
 
 
@@ -43,7 +44,7 @@ def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer):
     p_dropout = keras.layers.Dropout(.2)(p_dense1)
     p_dense2 = keras.layers.Dense(hidden_size, activation='relu',
                                   kernel_initializer=keras.initializers.he_normal())(p_dropout)
-    p_out = keras.layers.Dense(num_actions, activation='softmax',
+    p_out = keras.layers.Dense(num_actions, activation='linear',
                                kernel_initializer=keras.initializers.he_normal(), name='policy_output')(p_dense2)
     return p_out
 
@@ -77,9 +78,6 @@ def get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num
     model = keras.Model(input_tensor,
                         [build_policy(out_filters, out_kernel_size, hidden_size, num_action, base_model),
                          build_value(out_filters, out_kernel_size, hidden_size, base_model)])
-    model.compile(optimizer='adam', loss={'policy_output': 'categorical_crossentropy', 'value_output': 'mse'},
-                  loss_weights=[0.5, 0.5],
-                  metrics=['accuracy'])
     return model
 
 
@@ -120,3 +118,18 @@ class ResidualLayer(Layer):
 
     def get_config(self):
         return {}
+
+
+def cross_entropy_with_logits(y_true, y_pred):
+    p = y_pred
+    pi = y_true
+    minus_ones = tf.fill(dims=tf.shape(pi), value=-1.)
+    where = tf.equal(pi, minus_ones)
+
+    negatives = tf.fill(tf.shape(pi), -100.0)
+    zeros = tf.zeros(shape=tf.shape(pi), dtype=tf.float32)
+    p = tf.where(where, negatives, p)
+    pi = tf.where(where, zeros, pi)
+    loss = tf.nn.softmax_cross_entropy_with_logits(labels=pi, logits=p)
+
+    return loss

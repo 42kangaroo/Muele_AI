@@ -57,12 +57,11 @@ class State(object):
 
     def pi(self, temp):
         if temp == 0:
-            choices_weights = np.zeros(24)
+            choices_weights = np.full(24, -1.)
             choices_weights[max(self.children.items(), key=lambda x: x[1].n)[0]] = 1
-
         else:
             visitSum = sum([np.power(c.n, 1 / temp) for c in self.children.values()])
-            choices_weights = np.zeros(24)
+            choices_weights = np.full(24, -1.)
             for idx, node in self.children.items():
                 choices_weights[idx] = np.power(node.n, 1 / temp) / visitSum
         return choices_weights
@@ -84,10 +83,11 @@ class State(object):
 
     def setValAndPriors(self, nnet):
         if self.is_terminal_node() == 0:
+            from keras.backend import softmax
             self.priors, val = nnet(
                 encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
                                            [self.state[2][1 if self.env.isPlaying == 1 else 0]], [self.state[7]]))
-            self.priors = self.priors.numpy()
+            self.priors = softmax(self.priors).numpy()
         else:
             if self.is_terminal_node() == 2:
                 val = 0
@@ -115,7 +115,7 @@ class MonteCarloTreeSearch(object):
         self.root: State = node
         self.depth = depth
 
-    def generatePlay(self, memory, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
+    def generatePlay(self, memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
         import Network
         nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
@@ -136,10 +136,12 @@ class MonteCarloTreeSearch(object):
                                                                             s_pi):
                 short_term_memory.append([state, player, selected, gamePhase, moveNeeded, pi_s, None])
             if self.depth < configs.TURNS_UNTIL_TAU0:
-                self.goToMoveNode(np.random.choice(np.arange(24), p=pi))
+                choices_pi = np.where(pi == -1, np.zeros(pi.shape), pi)
+                self.goToMoveNode(np.random.choice(np.arange(24), p=choices_pi))
             else:
                 self.goToMoveNode(np.argmax(pi))
-        print(len(short_term_memory), self.root.is_terminal_node())
+        logger.log.remote(
+            "turns played: " + str(len(short_term_memory) / 8) + " player won: " + str(self.root.is_terminal_node()))
         finished = self.root.is_terminal_node()
         if abs(finished) == 1:
             pass
@@ -149,7 +151,8 @@ class MonteCarloTreeSearch(object):
         short_term_memory[:, 6] = finished * short_term_memory[:, 1]
         memory.addToMem.remote(short_term_memory)
 
-    def pit(self, oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
+    def pit(self, oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
+            exponent=configs.SIMS_EXPONENT):
         import Network
         oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                  configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
@@ -159,7 +162,9 @@ class MonteCarloTreeSearch(object):
         newNet.load_weights(newNet_path)
         for iteration in range(configs.MAX_MOVES):
             if self.root.is_terminal_node() != 0:
-                print(iteration, self.root.is_terminal_node())
+                logger.log.remote(
+                    "turns played: " + str(iteration) + " player won: " + str(
+                        self.root.is_terminal_node() * begins))
                 if self.root.is_terminal_node() == 2:
                     return 0
                 return self.root.is_terminal_node() * begins
@@ -169,9 +174,11 @@ class MonteCarloTreeSearch(object):
                 actualnet = oldNet
             pi = self.search(actualnet, multiplikator, exponent)
             if self.depth < configs.TURNS_UNTIL_TAU0:
-                self.goToMoveNode(np.random.choice(np.arange(24), p=pi))
+                choices_pi = np.where(pi == -1, np.zeros(pi.shape), pi)
+                self.goToMoveNode(np.random.choice(np.arange(24), p=choices_pi))
             else:
                 self.goToMoveNode(np.argmax(pi))
+        logger.log.remote("the game ended in a draw")
         return 0
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
@@ -218,15 +225,16 @@ class MonteCarloTreeSearch(object):
 
 
 @ray.remote
-def execute_generate_play(memory, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
+def execute_generate_play(memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     env = MillEnv()
     mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, env.isPlaying, env))
-    mcts.generatePlay(memory, nnet_weights_path, multiplikator, exponent)
+    mcts.generatePlay(memory, nnet_weights_path, logger, multiplikator, exponent)
 
 
 @ray.remote
-def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
+def execute_pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
+                exponent=configs.SIMS_EXPONENT):
     env = MillEnv()
     mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, env.isPlaying, env))
-    return mcts.pit(oldNet_path, newNet_path, begins, multiplikator, exponent)
+    return mcts.pit(oldNet_path, newNet_path, begins, logger, multiplikator, exponent)

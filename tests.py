@@ -1,7 +1,6 @@
 import multiprocessing as mp
 import unittest
 
-import SharedArray
 import numpy as np
 
 import MillEnv
@@ -27,9 +26,17 @@ class NetworkTest(unittest.TestCase):
                                                 [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0]],
                                                 [self.env.selected]),
                      {'policy_output': np.array(
-                         [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]),
+                         [[.25, 0., 0.25, 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
+                           -1., 0.]]),
                          'value_output': np.array([[0.5]])}, epochs=1,
                      batch_size=1)
+
+    def test_loss(self):
+        import Network
+        print(Network.cross_entropy_with_logits(
+            [.25, 0., 0.25, 0., 0., 0., 0., -1., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
+             -1., 0.], [2., -1., 0.2, -1., -1., 0., 0., 0., 0., 0., 4., 0., 0., 1., 0., 0., 6., 0., 0., 1., .0, 0.,
+                        5., 0.]))
 
 
 class EncodersTest(unittest.TestCase):
@@ -157,14 +164,12 @@ class MCTSTest(unittest.TestCase):
     @unittest.skip("mulitpocessing doesn't work, infinite loop")
     def test_multiprocessing(self):
         file = "file_mem://alphaMemoryMulti"
-        memory = SharedArray.create(file, 48000, tuple)
         val = mp.Value("L")
         processes = [mp.Process(target=self.mcts.generatePlay, args=(file, self.nnet, val, 1, 1)) for i in range(8)]
         for p in processes:
             p.start()
         for p in processes:
             p.join()
-        SharedArray.delete(file)
 
 
 if __name__ == '__main__':
