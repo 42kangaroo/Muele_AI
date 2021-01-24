@@ -86,7 +86,7 @@ class State(object):
             from keras.backend import softmax
             self.priors, val = nnet(
                 encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
-                                           [self.state[2][1 if self.env.isPlaying == 1 else 0]], [self.state[7]]))
+                                           [self.state[2][1 if self.state[1] == 1 else 0]], [self.state[7]]))
             mask = np.ones(self.priors.shape, dtype=bool)
             mask[0, self.valid_moves] = False
             self.priors = np.array(self.priors)
@@ -131,7 +131,7 @@ class MonteCarloTreeSearch(object):
                 break
             pi = self.search(nnet, multiplikator, exponent)
             s_states, s_selected = encoders.getSymetries(self.root.state[0], self.root.state[7])
-            s_gamePhase = np.full(8, self.root.state[2][1 if self.root.last_player == 1 else 0])
+            s_gamePhase = np.full(8, self.root.state[2][1 if self.root.state[1] == 1 else 0])
             s_player = np.full(8, self.root.state[1])
             s_moveNeeded = np.full(8, self.root.state[3])
             s_pi = encoders.getTargetSymetries(pi, self.root.state[3])
@@ -145,7 +145,7 @@ class MonteCarloTreeSearch(object):
             else:
                 self.goToMoveNode(np.argmax(pi))
         logger.log.remote(
-            "turns played: " + str(len(short_term_memory) / 8) + " player won: " + str(self.root.is_terminal_node()))
+            "turns played: " + str(len(short_term_memory) // 8) + " player won: " + str(self.root.is_terminal_node()))
         finished = self.root.is_terminal_node()
         if abs(finished) == 1:
             pass
