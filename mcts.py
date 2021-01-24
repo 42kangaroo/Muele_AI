@@ -87,6 +87,10 @@ class State(object):
             self.priors, val = nnet(
                 encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
                                            [self.state[2][1 if self.env.isPlaying == 1 else 0]], [self.state[7]]))
+            mask = np.ones(self.priors.shape, dtype=bool)
+            mask[0, self.valid_moves] = False
+            self.priors = np.array(self.priors)
+            self.priors[mask] = -100.
             self.priors = softmax(self.priors).numpy()
         else:
             if self.is_terminal_node() == 2:
@@ -128,7 +132,7 @@ class MonteCarloTreeSearch(object):
             pi = self.search(nnet, multiplikator, exponent)
             s_states, s_selected = encoders.getSymetries(self.root.state[0], self.root.state[7])
             s_gamePhase = np.full(8, self.root.state[2][1 if self.root.last_player == 1 else 0])
-            s_player = np.full(8, self.root.last_player)
+            s_player = np.full(8, self.root.state[1])
             s_moveNeeded = np.full(8, self.root.state[3])
             s_pi = encoders.getTargetSymetries(pi, self.root.state[3])
             for state, player, selected, gamePhase, moveNeeded, pi_s in zip(s_states, s_player, s_selected, s_gamePhase,
