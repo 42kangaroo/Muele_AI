@@ -126,6 +126,8 @@ class MonteCarloTreeSearch(object):
                                configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
         nnet.load_weights(nnet_weights_path)
         short_term_memory = []
+        val = self.root.setValAndPriors(nnet)
+        self.root.backpropagate(val)
         for iteration in range(configs.MAX_MOVES):
             if self.root.is_terminal_node() != 0:
                 break
@@ -164,6 +166,8 @@ class MonteCarloTreeSearch(object):
                                  configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
         oldNet.load_weights(oldNet_path)
         newNet.load_weights(newNet_path)
+        val = self.root.setValAndPriors(newNet if begins == 1 else oldNet)
+        self.root.backpropagate(val)
         for iteration in range(configs.MAX_MOVES):
             if self.root.is_terminal_node() != 0:
                 logger.log.remote(
@@ -207,9 +211,7 @@ class MonteCarloTreeSearch(object):
     def goToMoveNode(self, move):
         self.root = self.root.children[move]
         self.root.discardParent()
-        if self.root.is_terminal_node() == 0:
-            self.root.add_noise()
-            self.depth += 1
+        self.depth += 1
 
     def _tree_policy(self, nnet, expl=configs.CPUCT):
         """
