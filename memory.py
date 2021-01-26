@@ -10,6 +10,7 @@ class Memory(object):
         self.actual_max = actual_size
         self.max_size = max_size
         self.isFull = False
+        self.newest_data_after_resize = 0
 
     def addToMem(self, short_term_mem):
         idx_val = self.index
@@ -19,10 +20,11 @@ class Memory(object):
         else:
             self.isFull = True
             idxs_until_full = self.actual_max - self.index
-            self.index = len(short_term_mem) - idxs_until_full
+            self.index = len(short_term_mem) - idxs_until_full + self.newest_data_after_resize
+            self.newest_data_after_resize = 0
         if idxs_until_full:
             self.memory[np.arange(idx_val, self.actual_max)] = short_term_mem[:idxs_until_full]
-            self.memory[np.arange(len(short_term_mem) - idxs_until_full)] = short_term_mem[idxs_until_full:]
+            self.memory[np.arange(idxs_until_full, self.index)] = short_term_mem[idxs_until_full:]
         else:
             self.memory[np.arange(idx_val, idx_val + len(short_term_mem))] = short_term_mem
 
@@ -44,5 +46,6 @@ class Memory(object):
             newSize = self.max_size
         if self.isFull:
             self.isFull = False
+            self.newest_data_after_resize = self.index
             self.index = self.actual_max
         self.actual_max = newSize
