@@ -38,13 +38,12 @@ class State(object):
         self.parent = parent
         self.children = {}
         self.env: MillEnv = env
-        self.generator = np.random.default_rng()
         self.is_visited = False
         if not self.parent:
             generate_empty_nodes(self)
 
-    def add_noise(self, alpha=configs.ROOT_DIRICHLET_ALPHA, weight=configs.ROOT_DIRICHLET_WEIGHT):
-        noise = self.generator.dirichlet([alpha] * len(self.valid_moves))
+    def add_noise(self, gen, alpha=configs.ROOT_DIRICHLET_ALPHA, weight=configs.ROOT_DIRICHLET_WEIGHT):
+        noise = gen.dirichlet([alpha] * len(self.valid_moves))
         self.priors[0, self.valid_moves] = self.priors[0, self.valid_moves] * (1 - weight) + noise * weight
 
     def best_child(self, c_param=configs.CPUCT):
@@ -115,9 +114,10 @@ class State(object):
 
 
 class MonteCarloTreeSearch(object):
-    def __init__(self, node, depth=0):
+    def __init__(self, node):
         self.root: State = node
-        self.depth = depth
+        self.gen = np.random.default_rng()
+        self.depth = 0
 
     def generatePlay(self, memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
@@ -202,7 +202,7 @@ class MonteCarloTreeSearch(object):
         :returns best child state
         """
         simulations_number = int(len(self.root.valid_moves) ** exponent * multiplikator)
-        self.root.add_noise()
+        self.root.add_noise(self.gen)
         for i in range(simulations_number):
             v, reward = self._tree_policy(nnet)
             v.backpropagate(reward)

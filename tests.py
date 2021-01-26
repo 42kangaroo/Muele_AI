@@ -93,7 +93,7 @@ class StateTest(unittest.TestCase):
     def test_dirichlet(self):
         self.env.makeMove(1)
         self.state = mcts.State(np.zeros((1, 24)), 0, self.env.isPlaying, self.env)
-        self.state.add_noise()
+        self.state.add_noise(np.random.default_rng())
         self.assertNotEqual(self.state.priors[0, 0], 0)
 
     def test_expand(self):
@@ -102,7 +102,7 @@ class StateTest(unittest.TestCase):
         self.assertEqual(len(self.state.valid_moves), 23)
 
     def test_best_move(self):
-        self.state.add_noise()
+        self.state.add_noise(np.random.default_rng())
         self.assertEqual(self.state.best_child().last_move, 0)
 
     def test_backpropaget(self):

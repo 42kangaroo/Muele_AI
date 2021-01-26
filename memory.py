@@ -15,18 +15,15 @@ class Memory(object):
     def addToMem(self, short_term_mem):
         idx_val = self.index
         if self.index + len(short_term_mem) < self.actual_max:
-            idxs_until_full = None
             self.index += len(short_term_mem)
+            self.memory[np.arange(idx_val, idx_val + len(short_term_mem))] = short_term_mem
         else:
             self.isFull = True
             idxs_until_full = self.actual_max - self.index
             self.index = len(short_term_mem) - idxs_until_full + self.newest_data_after_resize
-            self.newest_data_after_resize = 0
-        if idxs_until_full:
             self.memory[np.arange(idx_val, self.actual_max)] = short_term_mem[:idxs_until_full]
-            self.memory[np.arange(idxs_until_full, self.index)] = short_term_mem[idxs_until_full:]
-        else:
-            self.memory[np.arange(idx_val, idx_val + len(short_term_mem))] = short_term_mem
+            self.memory[np.arange(self.newest_data_after_resize, self.index)] = short_term_mem[idxs_until_full:]
+            self.newest_data_after_resize = 0
 
     def getTrainSamples(self):
         if self.isFull:
