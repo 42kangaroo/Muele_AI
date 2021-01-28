@@ -17,8 +17,10 @@ def generate_empty_nodes(child_node):
                                                 child_node)
         if abs(child_node.children[child_move].is_terminal_node()) == 1:
             child_node.children.clear()
-            child_node.children[child_move] = State(None, 0, child_node.state[1], child_node.env, child_move,
+            child_node.children[child_move] = State(None, 0, child_node.state[1], child_node.env,
+                                                    child_move,
                                                     child_node)
+
             child_node.valid_moves = [child_move]
             return True
     return False
@@ -42,7 +44,8 @@ class State(object):
         if not self.parent:
             generate_empty_nodes(self)
 
-    def add_noise(self, gen, alpha=configs.ROOT_DIRICHLET_ALPHA, weight=configs.ROOT_DIRICHLET_WEIGHT):
+    def add_noise(self, gen: np.random.Generator, alpha=configs.ROOT_DIRICHLET_ALPHA,
+                  weight=configs.ROOT_DIRICHLET_WEIGHT):
         noise = gen.dirichlet([alpha] * len(self.valid_moves))
         self.priors[0, self.valid_moves] = self.priors[0, self.valid_moves] * (1 - weight) + noise * weight
 
@@ -82,7 +85,7 @@ class State(object):
 
     def setValAndPriors(self, nnet):
         if self.is_terminal_node() == 0:
-            from keras.backend import softmax
+            from tensorflow.keras.backend import softmax
             self.priors, val = nnet(
                 encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
                                            [self.state[2][1 if self.state[1] == 1 else 0]], [self.state[7]]))
@@ -157,38 +160,6 @@ class MonteCarloTreeSearch(object):
         short_term_memory[:, 6] = finished * short_term_memory[:, 1]
         memory.addToMem.remote(short_term_memory)
 
-    def pit(self, oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
-            exponent=configs.SIMS_EXPONENT):
-        import Network
-        oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                 configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-        newNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                 configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-        oldNet.load_weights(oldNet_path)
-        newNet.load_weights(newNet_path)
-        val = self.root.setValAndPriors(newNet if begins == 1 else oldNet)
-        self.root.backpropagate(val)
-        for iteration in range(configs.MAX_MOVES):
-            if self.root.is_terminal_node() != 0:
-                logger.log.remote(
-                    "turns played: " + str(iteration) + " player won: " + str(
-                        self.root.is_terminal_node() * begins))
-                if self.root.is_terminal_node() == 2:
-                    return 0
-                return self.root.is_terminal_node() * begins
-            if self.root.state[1] * begins == 1:
-                actualnet = newNet
-            else:
-                actualnet = oldNet
-            pi = self.search(actualnet, multiplikator, exponent)
-            if self.depth < configs.TURNS_UNTIL_TAU0:
-                choices_pi = np.where(pi == -1, np.zeros(pi.shape), pi)
-                self.goToMoveNode(np.random.choice(np.arange(24), p=choices_pi))
-            else:
-                self.goToMoveNode(np.argmax(pi))
-        logger.log.remote("the game ended in a draw")
-        return 0
-
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
         """
         get best action of state
@@ -202,6 +173,9 @@ class MonteCarloTreeSearch(object):
         :returns best child state
         """
         simulations_number = int(len(self.root.valid_moves) ** exponent * multiplikator)
+        if not self.root.is_visited:
+            val = self.root.setValAndPriors(nnet)
+            self.root.backpropagate(val)
         self.root.add_noise(self.gen)
         for i in range(simulations_number):
             v, reward = self._tree_policy(nnet)
@@ -209,7 +183,11 @@ class MonteCarloTreeSearch(object):
         return self.root.pi(1)
 
     def goToMoveNode(self, move):
+        if len(self.root.children) == 0:
+            generate_empty_nodes(self.root)
         self.root = self.root.children[move]
+        if len(self.root.children) == 0:
+            generate_empty_nodes(self.root)
         self.root.discardParent()
         self.depth += 1
 
@@ -234,13 +212,58 @@ class MonteCarloTreeSearch(object):
 def execute_generate_play(memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     env = MillEnv()
-    mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, env.isPlaying, env))
+    mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -env.isPlaying, env))
     mcts.generatePlay(memory, nnet_weights_path, logger, multiplikator, exponent)
 
 
 @ray.remote
 def execute_pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
-    env = MillEnv()
-    mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, env.isPlaying, env))
-    return mcts.pit(oldNet_path, newNet_path, begins, logger, multiplikator, exponent)
+    return pit(oldNet_path, newNet_path, begins, logger, multiplikator, exponent)
+
+
+def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
+        exponent=configs.SIMS_EXPONENT):
+    import Network
+    oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                             configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    newNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                             configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    oldNet.load_weights(oldNet_path)
+    newNet.load_weights(newNet_path)
+    envNew = MillEnv()
+    envOld = MillEnv()
+    oldNet_mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -envOld.isPlaying, envOld))
+    newNet_mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -envNew.isPlaying, envNew))
+    val = oldNet_mcts.root.setValAndPriors(oldNet)
+    oldNet_mcts.root.backpropagate(val)
+    val = newNet_mcts.root.setValAndPriors(newNet)
+    newNet_mcts.root.backpropagate(val)
+    finisched = 0
+    actualPlayer = 1
+    for iteration in range(configs.MAX_MOVES):
+        if finisched != 0:
+            logger.log.remote(
+                "turns played: " + str(iteration) + " player won: " + str(
+                    finisched * begins))
+            if finisched == 2:
+                return 0
+            return finisched * begins
+        if actualPlayer * begins == 1:
+            actualnet = newNet
+            actualMCTS = newNet_mcts
+        else:
+            actualnet = oldNet
+            actualMCTS = oldNet_mcts
+        pi = actualMCTS.search(actualnet, multiplikator, exponent)
+        if iteration < configs.TURNS_UNTIL_TAU0:
+            choices_pi = np.where(pi == -1, np.zeros(pi.shape), pi)
+            pos = np.random.choice(np.arange(24), p=choices_pi)
+        else:
+            pos = np.argmax(pi)
+        oldNet_mcts.goToMoveNode(pos)
+        newNet_mcts.goToMoveNode(pos)
+        actualPlayer = actualMCTS.root.state[1]
+        finisched = actualMCTS.root.is_terminal_node()
+    logger.log.remote("the game ended in a draw")
+    return 0

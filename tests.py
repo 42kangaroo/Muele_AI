@@ -87,12 +87,12 @@ class StateTest(unittest.TestCase):
     def setUp(self) -> None:
         import Network
         self.env = MillEnv.MillEnv()
-        self.state = mcts.State(np.zeros((1, 24)), 0, self.env.isPlaying, self.env)
+        self.state = mcts.State(np.zeros((1, 24)), 0, -self.env.isPlaying, self.env)
         self.nnet = Network.get_net(24, 3, 64, 4, 1, 24, (8, 3, 4))
 
     def test_dirichlet(self):
         self.env.makeMove(1)
-        self.state = mcts.State(np.zeros((1, 24)), 0, self.env.isPlaying, self.env)
+        self.state = mcts.State(np.zeros((1, 24)), 0, -self.env.isPlaying, self.env)
         self.state.add_noise(np.random.default_rng())
         self.assertNotEqual(self.state.priors[0, 0], 0)
 
@@ -123,7 +123,7 @@ class MCTSTest(unittest.TestCase):
         self.env = MillEnv.MillEnv()
         import Network
         self.nnet = Network.get_net(96, 3, 256, 4, 1, 24, (8, 3, 4))
-        self.mcts = mcts.MonteCarloTreeSearch(mcts.State(np.zeros((1, 24)), 0, self.env.isPlaying, self.env))
+        self.mcts = mcts.MonteCarloTreeSearch(mcts.State(np.zeros((1, 24)), 0, -self.env.isPlaying, self.env))
 
     @unittest.skip("ray is used")
     def test_search(self):
@@ -139,7 +139,7 @@ class MCTSTest(unittest.TestCase):
 
     @unittest.skip("ray is used")
     def test_fit_generated(self):
-        import keras
+        from tensorflow import keras
         memory = np.zeros((48000, 7), dtype=object)
         val = mp.Value("L")
         self.mcts.generatePlay(memory, self.nnet, val, 1, 1)

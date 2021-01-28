@@ -93,7 +93,6 @@ class ResidualLayer(Layer):
             , activation='linear'
         )
         self.norm1 = keras.layers.BatchNormalization(axis=1)
-
         self.relu1 = keras.layers.LeakyReLU()
         self.conv2 = keras.layers.Conv2D(
             filters=filters

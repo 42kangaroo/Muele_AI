@@ -1,5 +1,5 @@
-import keras
 import ray
+from tensorflow import keras
 
 import Network
 import configs

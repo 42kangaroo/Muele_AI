@@ -1,8 +1,10 @@
 import PySimpleGUI as psGui
 import numpy as np
 
+import Network
+import configs
 from MillEnv import MillEnv
-from mcts import State, MonteCarloTreeSearch
+from mcts import State, MonteCarloTreeSearch, generate_empty_nodes
 
 
 class MillDisplayer(object):
@@ -12,6 +14,9 @@ class MillDisplayer(object):
         self.blackCheckerImage: str = "Schwarz.png"
         self.whiteCheckerImage: str = "Weiss.png"
         self.millEnv: MillEnv = MillEnv()
+        self.moves_names = {0: "put down", 1: "choose checker", 2: "move selected checker",
+                            3: "delete opponent checker"}
+        self.last_move = []
         if MillEnvironment is not None:
             self.millEnv = MillEnvironment
         self.ImageIDArray = np.array([])
@@ -29,7 +34,7 @@ class MillDisplayer(object):
             graph_top_right=(500, 500),
         )
         self.statusTextBox = psGui.Text("Player " + self.getPlayerName(self.millEnv.isPlaying) + " is playing",
-                                        size=(50, 1))
+                                        size=(60, 1))
         self.layout_ = [
             [psGui.Button("Player vs. Player"), psGui.Button("Player vs. Agent"), psGui.Button("Agent vs. Agent")],
             [self.statusTextBox],
@@ -57,11 +62,12 @@ class MillDisplayer(object):
         return valid
 
     def reloadEnv(self):
-        self.setStatus("Player " + self.getPlayerName(self.millEnv.isPlaying) + " is playing - move needed: " + str(
-            self.millEnv.moveNeeded))
+        self.setStatus(
+            "Player " + self.getPlayerName(self.millEnv.isPlaying) + " is playing - move needed: " + self.moves_names[
+                self.millEnv.moveNeeded])
         for imageID in self.ImageIDArray:
             self.graph.DeleteFigure(imageID)
-        np.delete(self.ImageIDArray, np.s_[:])
+        self.ImageIDArray = np.array([])
         for case, location in zip(self.millEnv.getBoard(), self.imageLocations):
             if case == 1:
                 self.ImageIDArray = np.append(self.ImageIDArray,
@@ -81,11 +87,11 @@ class MillDisplayer(object):
     def setAfterClicked(self, event):
         pos = self.getClicked(event)
         if pos == -1:
-            return False
+            return
         if self.millEnv.moveNeeded == 2:
             dif = self.millEnv.selected - pos
             if dif == 0:
-                return False
+                return
             if dif == -1:
                 pos = 1
             elif dif == 1:
@@ -94,7 +100,9 @@ class MillDisplayer(object):
                 pos = 2
             elif dif > 0:
                 pos = 0
-        return self.makeMove(pos)
+        self.last_move.append(pos)
+        if not self.makeMove(pos):
+            self.last_move.pop()
 
     def isInArea(self, posX1: int, posY1: int, posX2: int, posY2: int, width: int, height: int) -> bool:
         if posX2 <= posX1 <= posX2 + width:
@@ -131,14 +139,18 @@ class MillDisplayer(object):
 
 
 class ModeratedGraphics(object):
-    def __init__(self, gamma=0.9, num_sims=250, max_depth=15):
-        self.max_depth = max_depth
-        self.num_sims = num_sims
-        self.gamma = gamma
+    def __init__(self, network_path, faktor, exponent):
+        self.nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                    configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+        self.nnet.load_weights(network_path)
+        self.exponent = exponent
+        self.faktor = faktor
         self.env = MillEnv()
         self.graphics = MillDisplayer(self.env)
         self.graphics.reloadEnv()
-        self.root: State = State(1, self.env)
+        self.root: State = State(np.zeros((1, 24)), 0, -self.env.isPlaying, self.env)
+        val = self.root.setValAndPriors(self.nnet)
+        self.root.backpropagate(val)
         self.mcts = MonteCarloTreeSearch(self.root)
 
     def agentPlay(self):
@@ -147,9 +159,17 @@ class ModeratedGraphics(object):
         finished = 0
         while finished == 0:
             self.graphics.reloadEnv()
-            pos = self.mcts.best_action(self.gamma, multiplikator=self.num_sims, max_depth=self.max_depth)
-            self.graphics.makeMove(pos)
-            self.mcts.setNewRoot(State(1, self.env))
+            pi = self.mcts.search(self.nnet, self.faktor, self.exponent)
+            if self.mcts.depth < 5:
+                choices_pi = np.where(pi == -1, np.zeros(pi.shape), pi)
+                pos = np.random.choice(np.arange(24), p=choices_pi)
+            else:
+                pos = np.argmax(pi)
+            self.mcts.goToMoveNode(pos)
+            self.env.setFullState(self.mcts.root.state[0], self.mcts.root.state[1], self.mcts.root.state[2],
+                                  self.mcts.root.state[3], self.mcts.root.state[4], self.mcts.root.state[5],
+                                  self.mcts.root.state[6], self.mcts.root.state[7], self.mcts.root.state[8],
+                                  self.mcts.root.state[9])
             event, values = self.graphics.read(True)
             if self.eventHandler(event):
                 return
@@ -185,15 +205,27 @@ class ModeratedGraphics(object):
             event, values = self.graphics.read(True)
             if self.eventHandler(event):
                 return
+            while len(self.graphics.last_move) > 0:
+                self.mcts.goToMoveNode(self.graphics.last_move.pop())
+                self.env.setFullState(self.mcts.root.state[0], self.mcts.root.state[1], self.mcts.root.state[2],
+                                      self.mcts.root.state[3], self.mcts.root.state[4], self.mcts.root.state[5],
+                                      self.mcts.root.state[6], self.mcts.root.state[7], self.mcts.root.state[8],
+                                      self.mcts.root.state[9])
             if self.env.isPlaying == 1:
                 self.graphics.activateClick()
             else:
+                if self.mcts.root.priors is None:
+                    val = self.mcts.root.setValAndPriors(self.nnet)
+                    self.mcts.root.backpropagate(val)
+                    generate_empty_nodes(self.mcts.root)
                 self.graphics.deactivateClick()
-                self.root = State(1, self.env)
-                self.mcts.setNewRoot(self.root)
-                pos = self.mcts.best_action(self.gamma, multiplikator=self.num_sims, max_depth=self.max_depth)
-                self.mcts.setNewRoot(State(1, self.env))
-                self.graphics.makeMove(pos)
+                pi = self.mcts.search(self.nnet, self.faktor, self.exponent)
+                pos = np.argmax(pi)
+                self.mcts.goToMoveNode(pos)
+                self.env.setFullState(self.mcts.root.state[0], self.mcts.root.state[1], self.mcts.root.state[2],
+                                      self.mcts.root.state[3], self.mcts.root.state[4], self.mcts.root.state[5],
+                                      self.mcts.root.state[6], self.mcts.root.state[7], self.mcts.root.state[8],
+                                      self.mcts.root.state[9])
             self.graphics.reloadEnv()
             finished = self.env.isFinished()
         self.graphics.reloadEnv()
@@ -210,6 +242,8 @@ class ModeratedGraphics(object):
         while not finished:
             event, values = self.graphics.read()
             finished = self.eventHandler(event)
+            if event != psGui.WIN_CLOSED and event != 'Close':
+                finished = False
 
     def eventHandler(self, event) -> bool:
         if event == psGui.WIN_CLOSED or event == 'Close':  # if user closes window or clicks cancel
@@ -217,17 +251,29 @@ class ModeratedGraphics(object):
             return True
         elif event == "Agent vs. Agent":
             self.agentPlay()
+            return True
         elif event == "Player vs. Player":
             self.playersVSPlayer()
+            return True
         elif event == "Player vs. Agent":
             self.playerVSAgent()
+            return True
         return False
 
     def resetMonteCarlo(self):
         self.env.reset()
-        self.root = State(1, self.env)
-        self.mcts.setNewRoot(self.root)
+        self.graphics.millEnv.reset()
+        self.root: State = State(np.zeros((1, 24)), 0, -self.env.isPlaying, self.env)
+        self.env.setFullState(self.mcts.root.state[0], self.mcts.root.state[1], self.mcts.root.state[2],
+                              self.mcts.root.state[3], self.mcts.root.state[4], self.mcts.root.state[5],
+                              self.mcts.root.state[6], self.mcts.root.state[7], self.mcts.root.state[8],
+                              self.mcts.root.state[9])
+        self.mcts = MonteCarloTreeSearch(self.root)
+        val = self.mcts.root.setValAndPriors(self.nnet)
+        self.mcts.root.backpropagate(val)
+        self.graphics.reloadEnv()
 
 
-MCGraphics = ModeratedGraphics(gamma=0.9, max_depth=12, num_sims=750)
-MCGraphics.playLoop()
+if __name__ == "__main__":
+    MCGraphics = ModeratedGraphics("models/episode-2.h5", 3, 1.15)
+    MCGraphics.playLoop()
