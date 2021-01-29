@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import ray
 
@@ -46,3 +48,16 @@ class Memory(object):
             self.newest_data_after_resize = self.index
             self.index = self.actual_max
         self.actual_max = newSize
+
+    def saveState(self, episode, path_mem, path_vars):
+        np.save(path_mem, self.memory)
+        with open(path_vars, "wb") as f:
+            pickle.dump(
+                (episode, self.index, self.newest_data_after_resize, self.isFull, self.max_size, self.actual_max), f)
+
+    def loadState(self, path_mem, path_vars):
+        self.memory = np.load(path_mem, allow_pickle=True)
+        with open(path_vars, "rb") as f:
+            episode, self.index, self.newest_data_after_resize, self.isFull, self.max_size, self.actual_max = \
+                pickle.load(f)
+        return episode

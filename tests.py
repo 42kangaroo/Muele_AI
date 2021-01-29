@@ -159,7 +159,7 @@ class MCTSTest(unittest.TestCase):
 
     @unittest.skip("ray is used")
     def test_pit(self):
-        print(self.mcts.pit(self.nnet, self.nnet, -1, 8, 1.15))
+        print(mcts.pit(self.nnet, self.nnet, -1, 8, 1.15))
 
     @unittest.skip("mulitpocessing doesn't work, infinite loop")
     def test_multiprocessing(self):
@@ -170,6 +170,20 @@ class MCTSTest(unittest.TestCase):
             p.start()
         for p in processes:
             p.join()
+
+
+class SaveTest(unittest.TestCase):
+    def test_save(self):
+        import pickle
+        array = np.array([1, 2, 3])
+        i = 1
+        np.save("test.npy", array)
+        with open("test.obj", "wb") as f:
+            pickle.dump(i, f)
+
+    def test_load(self):
+        array = np.load("test.npy")
+        print(array)
 
 
 if __name__ == '__main__':
