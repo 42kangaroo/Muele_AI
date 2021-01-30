@@ -67,6 +67,7 @@ if __name__ == "__main__":
                 mem.changeMaxSize.remote(current_mem_size)
             episode += 1
         logger_handle.log.remote("============ finisched AlphaZero ===========")
+        current_Network.save_weights("models/best_net.h5")
         ray.get(mem.saveState.remote(episode, "finished_array.npy", "finisched_vars.obj"))
         ray.shutdown()
     except KeyboardInterrupt:
