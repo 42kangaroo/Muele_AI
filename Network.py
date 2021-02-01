@@ -1,5 +1,8 @@
+import queue
+
+import ray
 import tensorflow as tf
-from keras.layers import Layer
+from tensorflow.keras.layers import Layer
 
 
 def build_input(filters, kernel_size, input_layer):
@@ -132,3 +135,43 @@ def cross_entropy_with_logits(y_true, y_pred):
     loss = tf.nn.softmax_cross_entropy_with_logits(labels=pi, logits=p)
 
     return loss
+
+
+@ray.remote(num_cpus=0, num_gpus=0.25)
+class ServeModel:
+    def __init__(self, model_path, filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action,
+                 input_shape):
+        physical_devices = tf.config.list_physical_devices('GPU')
+        if physical_devices:
+            tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        self.model = get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action, input_shape)
+        self.model.load_weights(model_path)
+
+    def predict(self, inputs):
+        return self.model(inputs)
+
+    def exit(self):
+        ray.actor.exit_actor()
+
+
+@ray.remote(num_cpus=0)
+class ServeModels:
+    def __init__(self, model_path, filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action,
+                 input_shape, replicas):
+        self.models = [
+            ServeModel.remote(model_path, filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action,
+                              input_shape) for i in range(replicas)]
+        self.readymodels = queue.Queue(maxsize=4)
+        for i in range(replicas):
+            self.readymodels.put(i)
+
+    def predict(self, inputs):
+        idx = self.readymodels.get()
+        x = self.models[idx].predict.remote(inputs)
+        self.readymodels.put(idx)
+        return ray.get(x)
+
+    def kill_actors(self):
+        for model in self.models:
+            ray.get(model.exit.remote())
+        ray.actor.exit_actor()
