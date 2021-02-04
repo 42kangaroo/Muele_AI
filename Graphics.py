@@ -275,5 +275,5 @@ class ModeratedGraphics(object):
 
 
 if __name__ == "__main__":
-    MCGraphics = ModeratedGraphics("models/episode-2.h5", 3, 1.15)
+    MCGraphics = ModeratedGraphics("episode-1.h5", 8, 1.15)
     MCGraphics.playLoop()

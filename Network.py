@@ -7,7 +7,6 @@ from tensorflow.keras.layers import Layer
 
 def build_input(filters, kernel_size, input_layer):
     from tensorflow import keras
-
     conv = keras.layers.Conv2D(
         filters=filters
         , kernel_size=kernel_size
@@ -23,11 +22,7 @@ def build_input(filters, kernel_size, input_layer):
     residual4 = ResidualLayer(filters, kernel_size)(residual3)
     residual5 = ResidualLayer(filters, kernel_size)(residual4)
     residual6 = ResidualLayer(filters, kernel_size)(residual5)
-    residual7 = ResidualLayer(filters, kernel_size)(residual6)
-    residual8 = ResidualLayer(filters, kernel_size)(residual7)
-    residual9 = ResidualLayer(filters, kernel_size)(residual8)
-    residual10 = ResidualLayer(filters, kernel_size)(residual9)
-    return residual10
+    return residual6
 
 
 def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer):

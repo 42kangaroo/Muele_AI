@@ -124,6 +124,8 @@ class MonteCarloTreeSearch(object):
 
     def generatePlay(self, memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
+        import tensorflow as tf
+        tf.config.set_visible_devices([], "GPU")
         import Network
         nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
@@ -208,15 +210,16 @@ class MonteCarloTreeSearch(object):
                 return current_node.parent.expand(current_node.last_move, None)
 
 
-@ray.remote
+@ray.remote(max_calls=1)
 def execute_generate_play(memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     env = MillEnv()
     mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -env.isPlaying, env))
     mcts.generatePlay(memory, nnet_weights_path, logger, multiplikator, exponent)
+    return True
 
 
-@ray.remote
+@ray.remote(max_calls=1)
 def execute_pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
     return pit(oldNet_path, newNet_path, begins, logger, multiplikator, exponent)
@@ -224,6 +227,8 @@ def execute_pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.
 
 def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
         exponent=configs.SIMS_EXPONENT):
+    import tensorflow as tf
+    tf.config.set_visible_devices([], "GPU")
     import Network
     oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                              configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)

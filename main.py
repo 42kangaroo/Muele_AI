@@ -36,7 +36,7 @@ if __name__ == "__main__":
             ray.get(futures_playGeneration)
             logger_handle.log.remote("============== starting training ================")
             train_data = ray.get(mem.getTrainSamples.remote())
-            tensorboard_callback = keras.callbacks.TensorBoard("TensorBoard/episode" + str(episode), update_freq=10,
+            tensorboard_callback = keras.callbacks.TensorBoard(configs.TENSORBOARD_PATH + str(episode), update_freq=10,
                                                                profile_batch=0)
             current_Network.compile(optimizer='adam',
                                     loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
@@ -47,7 +47,7 @@ if __name__ == "__main__":
                 {'policy_output': train_data[5],
                  'value_output': train_data[6]}, epochs=configs.EPOCHS,
                 batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
-            new_net_path = "models/temp_new_net.h5"
+            new_net_path = "temp_new_net.h5"
             current_Network.save_weights(new_net_path)
             logger_handle.log.remote("============ starting pit =============")
             futures_pit = [
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 mem.changeMaxSize.remote(current_mem_size)
             episode += 1
         logger_handle.log.remote("============ finisched AlphaZero ===========")
-        current_Network.save_weights("models/best_net.h5")
+        current_Network.save_weights("best_net.h5")
         ray.get(mem.saveState.remote(episode, "finished_array.npy", "finisched_vars.obj"))
         ray.shutdown()
     except KeyboardInterrupt:
