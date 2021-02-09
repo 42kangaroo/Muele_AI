@@ -22,8 +22,8 @@ OUT_KERNEL_SIZE = 1
 HIDDEN_SIZE = 128
 INPUT_SIZE = 8, 3, 4
 NUM_ACTIONS = 24
-NETWORK_PATH = "models/episode-"
-TENSORBOARD_PATH = "Tensorboard/episode-"
+NETWORK_PATH = "run1/nmodels/episode-"
+TENSORBOARD_PATH = "run1/Tensorboard/episode-"
 
 # EVAL
 
@@ -33,4 +33,4 @@ SCORING_THRESHOLD = 2
 # GENERAL
 
 TRAINING_LOOPS = 50
-LOGGER_PATH = "AlphaLog.log"
+LOGGER_PATH = "run1/AlphaLog.log"
