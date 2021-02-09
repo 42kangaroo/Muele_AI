@@ -22,7 +22,7 @@ OUT_KERNEL_SIZE = 1
 HIDDEN_SIZE = 128
 INPUT_SIZE = 8, 3, 4
 NUM_ACTIONS = 24
-NETWORK_PATH = "run1/nmodels/episode-"
+NETWORK_PATH = "run1/models/episode-"
 TENSORBOARD_PATH = "run1/Tensorboard/episode-"
 
 # EVAL

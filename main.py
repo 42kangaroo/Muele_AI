@@ -35,9 +35,9 @@ if __name__ == "__main__":
                                                   configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
             finished, not_finished = ray.wait(futures_playGeneration)
             while not_finished:
-                stmem, winner = ray.get(finished)
+                stmem = ray.get(finished)[0]
                 mem.addToMem(stmem)
-                logger_handle.log("player won: " + str(winner) + " turns played: " + str(len(stmem) // 8))
+                logger_handle.log("player won: " + str(-stmem[0][6]) + " turns played: " + str(len(stmem) // 8))
                 futures_playGeneration = not_finished
                 finished, not_finished = ray.wait(futures_playGeneration)
             logger_handle.log("============== starting training ================")
@@ -64,12 +64,12 @@ if __name__ == "__main__":
             oldWins = 0
             newWins = 0
             while not_finished:
-                winner, turns = ray.get(finished)
+                winner = ray.get(finished)[0]
                 if winner == 1:
                     newWins += 1
                 elif winner == -1:
                     oldWins += 1
-                logger_handle.log("player won: " + str(winner) + " turns played: " + str(turns))
+                logger_handle.log("player won: " + str(winner))
                 futures_pit = not_finished
                 finished, not_finished = ray.wait(futures_pit)
             if newWins < oldWins * configs.SCORING_THRESHOLD:  # not better then previus

@@ -3,3 +3,7 @@ root - INFO - saving actual net to models/episode-0.h5
 root - INFO - ============== starting selfplay ================
 root - INFO - turns played: 34 player won: 2
 root - INFO - turns played: 41 player won: 2
+2021-02-09 18:29:31,844 - root - INFO - =========== restarting training ==========
+2021-02-09 18:29:31,845 - root - INFO - ============== starting episode 0 ===============
+2021-02-09 18:29:31,845 - root - INFO - saving actual net to models/episode-0.h5
+2021-02-09 18:29:31,923 - root - INFO - ============== starting selfplay ================

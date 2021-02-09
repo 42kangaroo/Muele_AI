@@ -158,7 +158,7 @@ class MonteCarloTreeSearch(object):
             finished = (self.root.state[5][1] - self.root.state[5][0]) / 6
         short_term_memory = np.array(short_term_memory, dtype=object)
         short_term_memory[:, 6] = finished * short_term_memory[:, 1]
-        return short_term_memory, finished
+        return short_term_memory
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
         """
@@ -208,7 +208,7 @@ class MonteCarloTreeSearch(object):
                 return current_node.parent.expand(current_node.last_move, None)
 
 
-@ray.remote
+@ray.remote(max_calls=1)
 def execute_generate_play(nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     env = MillEnv()
@@ -216,7 +216,7 @@ def execute_generate_play(nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
     return mcts.generatePlay(nnet_weights_path, multiplikator, exponent)
 
 
-@ray.remote
+@ray.remote(max_calls=1)
 def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
     return pit(oldNet_path, newNet_path, begins, multiplikator, exponent)
@@ -246,8 +246,8 @@ def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAK
     for iteration in range(configs.MAX_MOVES):
         if finisched != 0:
             if finisched == 2:
-                return 0, iteration
-            return finisched * begins, iteration
+                return 0
+            return finisched * begins
         if actualPlayer * begins == 1:
             actualnet = newNet
             actualMCTS = newNet_mcts
@@ -264,4 +264,4 @@ def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAK
         newNet_mcts.goToMoveNode(pos)
         actualPlayer = actualMCTS.root.state[1]
         finisched = actualMCTS.root.is_terminal_node()
-    return 0, iteration
+    return 0
