@@ -122,7 +122,7 @@ class MonteCarloTreeSearch(object):
         self.gen = np.random.default_rng()
         self.depth = 0
 
-    def generatePlay(self, memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
+    def generatePlay(self, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
         import tensorflow as tf
         tf.config.set_visible_devices([], "GPU")
@@ -151,8 +151,6 @@ class MonteCarloTreeSearch(object):
                 self.goToMoveNode(np.random.choice(np.arange(24), p=choices_pi))
             else:
                 self.goToMoveNode(np.argmax(pi))
-        logger.log.remote(
-            "turns played: " + str(len(short_term_memory) // 8) + " player won: " + str(self.root.is_terminal_node()))
         finished = self.root.is_terminal_node()
         if abs(finished) == 1:
             pass
@@ -160,7 +158,7 @@ class MonteCarloTreeSearch(object):
             finished = (self.root.state[5][1] - self.root.state[5][0]) / 6
         short_term_memory = np.array(short_term_memory, dtype=object)
         short_term_memory[:, 6] = finished * short_term_memory[:, 1]
-        memory.addToMem.remote(short_term_memory)
+        return short_term_memory, finished
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
         """
@@ -210,19 +208,18 @@ class MonteCarloTreeSearch(object):
                 return current_node.parent.expand(current_node.last_move, None)
 
 
-@ray.remote(max_calls=1)
-def execute_generate_play(memory, nnet_weights_path, logger, multiplikator=configs.SIMS_FAKTOR,
+@ray.remote
+def execute_generate_play(nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     env = MillEnv()
     mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -env.isPlaying, env))
-    mcts.generatePlay(memory, nnet_weights_path, logger, multiplikator, exponent)
-    return True
+    return mcts.generatePlay(nnet_weights_path, multiplikator, exponent)
 
 
-@ray.remote(max_calls=1)
-def execute_pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
+@ray.remote
+def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
-    return pit(oldNet_path, newNet_path, begins, logger, multiplikator, exponent)
+    return pit(oldNet_path, newNet_path, begins, multiplikator, exponent)
 
 
 def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
@@ -248,12 +245,9 @@ def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAK
     actualPlayer = 1
     for iteration in range(configs.MAX_MOVES):
         if finisched != 0:
-            logger.log.remote(
-                "turns played: " + str(iteration) + " player won: " + str(
-                    finisched * begins))
             if finisched == 2:
-                return 0
-            return finisched * begins
+                return 0, iteration
+            return finisched * begins, iteration
         if actualPlayer * begins == 1:
             actualnet = newNet
             actualMCTS = newNet_mcts
@@ -270,5 +264,4 @@ def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAK
         newNet_mcts.goToMoveNode(pos)
         actualPlayer = actualMCTS.root.state[1]
         finisched = actualMCTS.root.is_terminal_node()
-    logger.log.remote("the game ended in a draw")
-    return 0
+    return 0, iteration

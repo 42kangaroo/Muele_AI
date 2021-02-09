@@ -1,10 +1,8 @@
 import pickle
 
 import numpy as np
-import ray
 
 
-@ray.remote(num_cpus=0)
 class Memory(object):
     def __init__(self, actual_size, max_size):
         self.index = 0

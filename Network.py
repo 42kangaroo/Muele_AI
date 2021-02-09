@@ -1,6 +1,3 @@
-import queue
-
-import ray
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 
@@ -25,7 +22,7 @@ def build_input(filters, kernel_size, input_layer):
     return residual6
 
 
-def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer):
+def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer, base_input):
     from tensorflow import keras
     p_conv = keras.layers.Conv2D(
         filters=filters
@@ -43,7 +40,8 @@ def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer):
     p_dense2 = keras.layers.Dense(hidden_size, activation='relu',
                                   kernel_initializer=keras.initializers.he_normal())(p_dropout)
     p_out = keras.layers.Dense(num_actions, activation='linear',
-                               kernel_initializer=keras.initializers.he_normal(), name='policy_output')(p_dense2)
+                               kernel_initializer=keras.initializers.he_normal(), name="policy_output")(
+        p_dense2)
     return p_out
 
 
@@ -74,7 +72,7 @@ def get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num
     input_tensor = keras.Input(shape=input_shape)
     base_model = build_input(filters, kernel_size, input_tensor)
     model = keras.Model(input_tensor,
-                        [build_policy(out_filters, out_kernel_size, hidden_size, num_action, base_model),
+                        [build_policy(out_filters, out_kernel_size, hidden_size, num_action, base_model, input_tensor),
                          build_value(out_filters, out_kernel_size, hidden_size, base_model)])
     return model
 
@@ -130,43 +128,3 @@ def cross_entropy_with_logits(y_true, y_pred):
     loss = tf.nn.softmax_cross_entropy_with_logits(labels=pi, logits=p)
 
     return loss
-
-
-@ray.remote(num_cpus=0, num_gpus=0.25)
-class ServeModel:
-    def __init__(self, model_path, filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action,
-                 input_shape):
-        physical_devices = tf.config.list_physical_devices('GPU')
-        if physical_devices:
-            tf.config.experimental.set_memory_growth(physical_devices[0], True)
-        self.model = get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action, input_shape)
-        self.model.load_weights(model_path)
-
-    def predict(self, inputs):
-        return self.model(inputs)
-
-    def exit(self):
-        ray.actor.exit_actor()
-
-
-@ray.remote(num_cpus=0)
-class ServeModels:
-    def __init__(self, model_path, filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action,
-                 input_shape, replicas):
-        self.models = [
-            ServeModel.remote(model_path, filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action,
-                              input_shape) for i in range(replicas)]
-        self.readymodels = queue.Queue(maxsize=4)
-        for i in range(replicas):
-            self.readymodels.put(i)
-
-    def predict(self, inputs):
-        idx = self.readymodels.get()
-        x = self.models[idx].predict.remote(inputs)
-        self.readymodels.put(idx)
-        return ray.get(x)
-
-    def kill_actors(self):
-        for model in self.models:
-            ray.get(model.exit.remote())
-        ray.actor.exit_actor()

@@ -13,15 +13,25 @@ class NetworkTest(unittest.TestCase):
     def setUp(self) -> None:
         import Network
         self.env = MillEnv.MillEnv()
-        self.net = Network.get_net(96, 3, 256, 4, 1, 24, (8, 3, 4))
+        self.net = Network.get_net(96, 3, 256, 4, 1, 76, (8, 3, 4))
 
     def test_create(self):
         self.assertEqual(2, len(
             self.net(encoders.prepareForNetwork([self.env.board], [self.env.isPlaying], [self.env.moveNeeded],
                                                 [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0]],
                                                 [self.env.selected]))))
+        print(self.net(
+            encoders.prepareForNetwork([self.env.board, self.env.board], [self.env.isPlaying, self.env.isPlaying],
+                                       [2, 1],
+                                       [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0], 0],
+                                       [self.env.selected, None])))
 
     def test_fit(self):
+        import Network
+        self.net.compile(optimizer='adam',
+                         loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
+                         loss_weights=[0.5, 0.5],
+                         metrics=['accuracy'])
         self.net.fit(encoders.prepareForNetwork([self.env.board], [self.env.isPlaying], [self.env.moveNeeded],
                                                 [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0]],
                                                 [self.env.selected]),
