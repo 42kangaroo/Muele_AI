@@ -11,7 +11,7 @@ def build_input(filters, kernel_size, input_layer):
         , use_bias=False
         , activation='linear'
     )(input_layer)
-    norm = keras.layers.BatchNormalization(axis=1)(conv)
+    norm = keras.layers.BatchNormalization()(conv)
     relu = keras.layers.LeakyReLU()(norm)
     residual1 = ResidualLayer(filters, kernel_size)(relu)
     residual2 = ResidualLayer(filters, kernel_size)(residual1)
@@ -31,7 +31,7 @@ def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer, ba
         , use_bias=False
         , activation='linear'
     )(input_layer)
-    p_norm = keras.layers.BatchNormalization(axis=1)(p_conv)
+    p_norm = keras.layers.BatchNormalization()(p_conv)
     p_relu = keras.layers.LeakyReLU()(p_norm)
     p_flatten = keras.layers.Flatten()(p_relu)
     p_dense1 = keras.layers.Dense(hidden_size * 2, activation='relu',
@@ -54,7 +54,7 @@ def build_value(filters, kernel_size, hidden_size, input_layer):
         , use_bias=False
         , activation='linear'
     )(input_layer)
-    v_norm = keras.layers.BatchNormalization(axis=1)(v_conv)
+    v_norm = keras.layers.BatchNormalization()(v_conv)
     v_relu = keras.layers.LeakyReLU()(v_norm)
     v_flatten = keras.layers.Flatten()(v_relu)
     v_dense1 = keras.layers.Dense(hidden_size * 2, activation='relu',
@@ -88,7 +88,7 @@ class ResidualLayer(Layer):
             , use_bias=False
             , activation='linear'
         )
-        self.norm1 = keras.layers.BatchNormalization(axis=1)
+        self.norm1 = keras.layers.BatchNormalization()
         self.relu1 = keras.layers.LeakyReLU()
         self.conv2 = keras.layers.Conv2D(
             filters=filters
@@ -97,7 +97,7 @@ class ResidualLayer(Layer):
             , use_bias=False
             , activation='linear'
         )
-        self.norm2 = keras.layers.BatchNormalization(axis=1)
+        self.norm2 = keras.layers.BatchNormalization()
         self.add = keras.layers.Add()
         self.relu2 = keras.layers.LeakyReLU()
 
@@ -112,7 +112,7 @@ class ResidualLayer(Layer):
         return x
 
     def get_config(self):
-        return {}
+        return {"conv_filters": self.conv1.filters, "kernel_size": self.conv1.kernel_size}
 
 
 def cross_entropy_with_logits(y_true, y_pred):

@@ -124,8 +124,8 @@ class MonteCarloTreeSearch(object):
 
     def generatePlay(self, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
-        import tensorflow as tf
-        tf.config.set_visible_devices([], "GPU")
+        import os
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
         import Network
         nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
@@ -224,8 +224,8 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
 
 def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
         exponent=configs.SIMS_EXPONENT):
-    import tensorflow as tf
-    tf.config.set_visible_devices([], "GPU")
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     import Network
     oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                              configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
