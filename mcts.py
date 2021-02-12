@@ -1,5 +1,4 @@
 import numpy as np
-import ray
 
 import configs
 import encoders
@@ -122,14 +121,14 @@ class MonteCarloTreeSearch(object):
         self.gen = np.random.default_rng()
         self.depth = 0
 
-    def generatePlay(self, nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
+    def generatePlay(self, nnet_weights, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
         import os
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
         import Network
         nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-        nnet.load_weights(nnet_weights_path)
+        nnet.set_weights(nnet_weights)
         short_term_memory = []
         val = self.root.setValAndPriors(nnet)
         self.root.backpropagate(val)
@@ -208,21 +207,7 @@ class MonteCarloTreeSearch(object):
                 return current_node.parent.expand(current_node.last_move, None)
 
 
-@ray.remote(max_calls=1)
-def execute_generate_play(nnet_weights_path, multiplikator=configs.SIMS_FAKTOR,
-                          exponent=configs.SIMS_EXPONENT):
-    env = MillEnv()
-    mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -env.isPlaying, env))
-    return mcts.generatePlay(nnet_weights_path, multiplikator, exponent)
-
-
-@ray.remote(max_calls=1)
-def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR,
-                exponent=configs.SIMS_EXPONENT):
-    return pit(oldNet_path, newNet_path, begins, multiplikator, exponent)
-
-
-def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAKTOR,
+def pit(oldNet_weigts, newNet_weigts, begins, logger, multiplikator=configs.SIMS_FAKTOR,
         exponent=configs.SIMS_EXPONENT):
     import os
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -231,8 +216,8 @@ def pit(oldNet_path, newNet_path, begins, logger, multiplikator=configs.SIMS_FAK
                              configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
     newNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                              configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-    oldNet.load_weights(oldNet_path)
-    newNet.load_weights(newNet_path)
+    oldNet.set_weights(oldNet_weigts)
+    newNet.set_weights(newNet_weigts)
     envNew = MillEnv()
     envOld = MillEnv()
     oldNet_mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -envOld.isPlaying, envOld))

@@ -1,8 +1,10 @@
 from os.path import isfile
 
 import ray
+from numpy import zeros
 from tensorflow import keras
 
+import MillEnv
 import Network
 import configs
 import encoders
@@ -10,9 +12,24 @@ import logger
 import mcts
 import memory
 
+
+@ray.remote(max_calls=1, num_cpus=1, num_gpus=0)
+def execute_generate_play(nnet_weights, multiplikator=configs.SIMS_FAKTOR,
+                          exponent=configs.SIMS_EXPONENT):
+    env = MillEnv.MillEnv()
+    mcts_ = mcts.MonteCarloTreeSearch(mcts.State(zeros((1, 24)), 0, -env.isPlaying, env))
+    return mcts_.generatePlay(nnet_weights, multiplikator, exponent)
+
+
+@ray.remote(max_calls=1, num_cpus=1, num_gpus=0)
+def execute_pit(oldNet_weights, newNet_weights, begins, multiplikator=configs.SIMS_FAKTOR,
+                exponent=configs.SIMS_EXPONENT):
+    return mcts.pit(oldNet_weights, newNet_weights, begins, multiplikator, exponent)
+
+
 if __name__ == "__main__":
     ray.shutdown()
-    ray.init()
+    ray.init(num_gpus=0)
     logger_handle = logger.Logger(configs.LOGGER_PATH)
     current_mem_size = configs.MIN_MEMORY
     mem = memory.Memory(current_mem_size, configs.MAX_MEMORY)
@@ -29,10 +46,11 @@ if __name__ == "__main__":
             current_Network_path = configs.NETWORK_PATH + str(episode) + ".h5"
             logger_handle.log("saving actual net to " + current_Network_path)
             current_Network.save_weights(current_Network_path)
+            current_weights = current_Network.get_weights()
             logger_handle.log("============== starting selfplay ================")
             futures_playGeneration = [
-                mcts.execute_generate_play.remote(current_Network_path, configs.SIMS_FAKTOR,
-                                                  configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
+                execute_generate_play.remote(current_weights, configs.SIMS_FAKTOR,
+                                             configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
             finished, not_finished = ray.wait(futures_playGeneration)
             while not_finished:
                 stmem = ray.get(finished)[0]
@@ -55,11 +73,12 @@ if __name__ == "__main__":
                 batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
             new_net_path = "temp_new_net.h5"
             current_Network.save_weights(new_net_path)
+            new_weights = current_Network.get_weights()
             logger_handle.log("============ starting pit =============")
             futures_pit = [
-                mcts.execute_pit.remote(current_Network_path, new_net_path, 1 if pit_iter % 2 == 0 else -1,
-                                        configs.SIMS_FAKTOR,
-                                        configs.SIMS_EXPONENT) for pit_iter in range(configs.EVAL_EPISODES)]
+                execute_pit.remote(current_weights, new_weights, 1 if pit_iter % 2 == 0 else -1,
+                                   configs.SIMS_FAKTOR,
+                                   configs.SIMS_EXPONENT) for pit_iter in range(configs.EVAL_EPISODES)]
             finished, not_finished = ray.wait(futures_pit)
             oldWins = 0
             newWins = 0
