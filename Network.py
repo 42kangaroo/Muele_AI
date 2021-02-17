@@ -1,9 +1,7 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Layer
-
+from tensorflow import keras
 
 def build_input(filters, kernel_size, input_layer):
-    from tensorflow import keras
     conv = keras.layers.Conv2D(
         filters=filters
         , kernel_size=kernel_size
@@ -23,7 +21,6 @@ def build_input(filters, kernel_size, input_layer):
 
 
 def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer, base_input):
-    from tensorflow import keras
     p_conv = keras.layers.Conv2D(
         filters=filters
         , kernel_size=kernel_size
@@ -46,7 +43,6 @@ def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer, ba
 
 
 def build_value(filters, kernel_size, hidden_size, input_layer):
-    from tensorflow import keras
     v_conv = keras.layers.Conv2D(
         filters=filters
         , kernel_size=kernel_size
@@ -68,7 +64,6 @@ def build_value(filters, kernel_size, hidden_size, input_layer):
 
 
 def get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num_action, input_shape):
-    from tensorflow import keras
     input_tensor = keras.Input(shape=input_shape)
     base_model = build_input(filters, kernel_size, input_tensor)
     model = keras.Model(input_tensor,
@@ -77,9 +72,8 @@ def get_net(filters, kernel_size, hidden_size, out_filters, out_kernel_size, num
     return model
 
 
-class ResidualLayer(Layer):
+class ResidualLayer(keras.layers.Layer):
     def __init__(self, filters, kernel_size):
-        from tensorflow import keras
         super(ResidualLayer, self).__init__()
         self.conv1 = keras.layers.Conv2D(
             filters=filters

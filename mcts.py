@@ -1,4 +1,8 @@
+import gc
+
 import numpy as np
+from tensorflow import convert_to_tensor
+from tensorflow.keras.backend import softmax
 
 import configs
 import encoders
@@ -84,22 +88,21 @@ class State(object):
 
     def setValAndPriors(self, nnet):
         if self.is_terminal_node() == 0:
-            from tensorflow.keras.backend import softmax
-            self.priors, val = nnet(
+            self.priors, val = nnet(convert_to_tensor(
                 encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
-                                           [self.state[2][1 if self.state[1] == 1 else 0]], [self.state[7]]))
+                                           [self.state[2][1 if self.state[1] == 1 else 0]], [self.state[7]])))
             mask = np.ones(self.priors.shape, dtype=bool)
             mask[0, self.valid_moves] = False
             self.priors = np.array(self.priors)
             self.priors[mask] = -100.
-            self.priors = softmax(self.priors).numpy()
+            self.priors = softmax(convert_to_tensor(self.priors)).numpy()
         else:
             if self.is_terminal_node() == 2:
                 val = 0
             else:
                 val = self.is_terminal_node()
             self.priors = np.zeros((1, 24))
-        return val
+        return float(val)
 
     def backpropagate(self, result):
         if self.is_terminal_node() == 0:
@@ -121,14 +124,8 @@ class MonteCarloTreeSearch(object):
         self.gen = np.random.default_rng()
         self.depth = 0
 
-    def generatePlay(self, nnet_weights, multiplikator=configs.SIMS_FAKTOR,
+    def generatePlay(self, nnet, multiplikator=configs.SIMS_FAKTOR,
                      exponent=configs.SIMS_EXPONENT):
-        import os
-        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-        import Network
-        nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                               configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-        nnet.set_weights(nnet_weights)
         short_term_memory = []
         val = self.root.setValAndPriors(nnet)
         self.root.backpropagate(val)
@@ -136,6 +133,7 @@ class MonteCarloTreeSearch(object):
             if self.root.is_terminal_node() != 0:
                 break
             pi = self.search(nnet, multiplikator, exponent)
+            gc.collect()
             s_states, s_selected = encoders.getSymetries(self.root.state[0], self.root.state[7])
             s_gamePhase = np.full(8, self.root.state[2][1 if self.root.state[1] == 1 else 0])
             s_player = np.full(8, self.root.state[1])
@@ -157,6 +155,7 @@ class MonteCarloTreeSearch(object):
             finished = (self.root.state[5][1] - self.root.state[5][0]) / 6
         short_term_memory = np.array(short_term_memory, dtype=object)
         short_term_memory[:, 6] = finished * short_term_memory[:, 1]
+        gc.collect()
         return short_term_memory
 
     def search(self, nnet, multiplikator=configs.SIMS_FAKTOR, exponent=configs.SIMS_EXPONENT):
@@ -207,17 +206,8 @@ class MonteCarloTreeSearch(object):
                 return current_node.parent.expand(current_node.last_move, None)
 
 
-def pit(oldNet_weigts, newNet_weigts, begins, logger, multiplikator=configs.SIMS_FAKTOR,
+def pit(oldNet, newNet, begins, multiplikator=configs.SIMS_FAKTOR,
         exponent=configs.SIMS_EXPONENT):
-    import os
-    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    import Network
-    oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                             configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-    newNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                             configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-    oldNet.set_weights(oldNet_weigts)
-    newNet.set_weights(newNet_weigts)
     envNew = MillEnv()
     envOld = MillEnv()
     oldNet_mcts = MonteCarloTreeSearch(State(np.zeros((1, 24)), 0, -envOld.isPlaying, envOld))
@@ -230,6 +220,7 @@ def pit(oldNet_weigts, newNet_weigts, begins, logger, multiplikator=configs.SIMS
     actualPlayer = 1
     for iteration in range(configs.MAX_MOVES):
         if finisched != 0:
+            gc.collect()
             if finisched == 2:
                 return 0
             return finisched * begins
@@ -240,6 +231,7 @@ def pit(oldNet_weigts, newNet_weigts, begins, logger, multiplikator=configs.SIMS
             actualnet = oldNet
             actualMCTS = oldNet_mcts
         pi = actualMCTS.search(actualnet, multiplikator, exponent)
+        gc.collect()
         if iteration < configs.TURNS_UNTIL_TAU0:
             choices_pi = np.where(pi == -1, np.zeros(pi.shape), pi)
             pos = np.random.choice(np.arange(24), p=choices_pi)
