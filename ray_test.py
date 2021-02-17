@@ -1,19 +1,9 @@
-import ray
-
-import MillEnv
-import Network
-import configs
-import encoders
-import numpy as np
-import os
-import mcts
-import gc
-from tensorflow.keras.backend import clear_session
 import gc
 import os
 
 import numpy as np
 import ray
+import tensorflow as tf
 from tensorflow.keras.backend import clear_session
 
 import MillEnv
@@ -21,6 +11,7 @@ import Network
 import configs
 import encoders
 import mcts
+import memory
 
 
 @ray.remote(num_cpus=1, num_gpus=0)
@@ -60,7 +51,7 @@ class test:
         return np.zeros((1000, 100, 100))
 
 
-if __name__ == "__main__":
+if __name__ == "__man__":
     ray.shutdown()
     ray.init()
     env = MillEnv.MillEnv()
@@ -81,3 +72,27 @@ if __name__ == "__main__":
         print(e.__doc__)
     finally:
         ray.shutdown()
+
+if __name__ == "__main__":
+    mem = memory.Memory(1000, 1000)
+    _ = mem.loadState("interrupt_array.npy", "interrupted_vars.obj")
+    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE,
+                                      configs.OUT_FILTERS,
+                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    current_Network.load_weights(configs.BEST_PATH)
+    current_Network.compile(optimizer='adam',
+                            loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
+                            loss_weights=[0.5, 0.5],
+                            metrics=['accuracy'])
+
+    for i in range(100):
+        train_data = mem.getTrainSamples()
+        current_Network.fit(
+            encoders.prepareForNetwork(train_data[0], train_data[1], train_data[2], train_data[3],
+                                       train_data[4]),
+            {'policy_output': train_data[5],
+             'value_output': train_data[6]}, epochs=configs.EPOCHS,
+            batch_size=configs.BATCH_SIZE)
+        current_Network.save_weights(configs.NEW_NET_PATH)
+        tf.keras.backend.clear_session()
+        tf.compat.v1.reset_default_graph()

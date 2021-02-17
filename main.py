@@ -57,6 +57,27 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
     return winner
 
 
+@ray.remote
+def train_net(in_path, out_path, train_data, tensorboard_path):
+    tensorboard_callback = keras.callbacks.TensorBoard(tensorboard_path, update_freq=10,
+                                                       profile_batch=0)
+    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE,
+                                      configs.OUT_FILTERS,
+                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    current_Network.load_weights(in_path)
+    current_Network.compile(optimizer='adam',
+                            loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
+                            loss_weights=[0.5, 0.5],
+                            metrics=['accuracy'])
+    current_Network.fit(
+        encoders.prepareForNetwork(train_data[0], train_data[1], train_data[2], train_data[3],
+                                   train_data[4]),
+        {'policy_output': train_data[5],
+         'value_output': train_data[6]}, epochs=configs.EPOCHS,
+        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
+    current_Network.save_weights(out_path)
+
+
 if __name__ == "__main__":
     ray.shutdown()
     logger_handle = logger.Logger(configs.LOGGER_PATH)
@@ -81,7 +102,7 @@ if __name__ == "__main__":
             copy(configs.BEST_PATH, current_Network_path)
             logger_handle.log("saving actual net to " + current_Network_path)
             logger_handle.log("============== starting selfplay ================")
-            ray.init()
+            ray.init(num_cpus=configs.NUM_CPUS)
             futures_playGeneration = [
                 execute_generate_play.remote(configs.BEST_PATH, configs.SIMS_FAKTOR,
                                              configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
@@ -101,33 +122,16 @@ if __name__ == "__main__":
             gc.collect()
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
-            tensorboard_callback = keras.callbacks.TensorBoard(configs.TENSORBOARD_PATH + str(episode), update_freq=10,
-                                                               profile_batch=0)
-            current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE,
-                                              configs.OUT_FILTERS,
-                                              configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-            current_Network.compile(optimizer='adam',
-                                    loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
-                                    loss_weights=[0.5, 0.5],
-                                    metrics=['accuracy'])
-            current_Network.fit(
-                tf.convert_to_tensor(
-                    encoders.prepareForNetwork(train_data[0], train_data[1], train_data[2], train_data[3],
-                                               train_data[4])),
-                {'policy_output': tf.convert_to_tensor(train_data[5]),
-                 'value_output': tf.convert_to_tensor(train_data[6])}, epochs=configs.EPOCHS,
-                batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
-            current_Network.save_weights(configs.NEW_NET_PATH)
-            del train_data
-            del tensorboard_callback
-            keras.backend.clear_session()
-            tf.compat.v1.reset_default_graph()
-            del current_Network
-            gc.collect()
-            logger_handle.log("============ starting pit =============")
             ray.init()
+            future_train = [
+                train_net.remote(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
+                                 configs.TENSORBOARD_PATH + str(episode))]
+            ray.get(future_train)
+            ray.shutdown()
+            logger_handle.log("============ starting pit =============")
+            ray.init(num_cpus=configs.NUM_CPUS)
             futures_pit = [
-                execute_pit.remote(current_Network_path, configs.NEW_NET_PATH, 1 if pit_iter % 2 == 0 else -1,
+                execute_pit.remote(configs.BEST_PATH, configs.NEW_NET_PATH, 1 if pit_iter % 2 == 0 else -1,
                                    configs.SIMS_FAKTOR,
                                    configs.SIMS_EXPONENT) for pit_iter in range(configs.EVAL_EPISODES)]
             oldWins = 0
@@ -163,6 +167,7 @@ if __name__ == "__main__":
         mem.saveState(episode, "finished_array.npy", "finisched_vars.obj")
     except BaseException as e:
         print(e.__doc__)
+        print(e)
         logger_handle.log("============ interupted training ===========")
         logger_handle.log(str(e.__doc__))
         mem.saveState(episode, "interrupt_array.npy", "interrupted_vars.obj")
