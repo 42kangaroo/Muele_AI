@@ -80,6 +80,7 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
 
 if __name__ == "__main__":
     ray.shutdown()
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     logger_handle = logger.Logger(configs.LOGGER_PATH)
     current_mem_size = configs.MIN_MEMORY
     mem = memory.Memory(current_mem_size, configs.MAX_MEMORY)
@@ -106,13 +107,12 @@ if __name__ == "__main__":
             futures_playGeneration = [
                 execute_generate_play.remote(configs.BEST_PATH, configs.SIMS_FAKTOR,
                                              configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
-
             while True:
                 finished, not_finished = ray.wait(futures_playGeneration)
                 gc.collect()
                 stmem = ray.get(finished)[0]
                 mem.addToMem(stmem)
-                logger_handle.log("player won: " + str(-stmem[0][6]) + " turns played: " + str(len(stmem) // 8))
+                logger_handle.log("player won: " + str(stmem[0][6]) + " turns played: " + str(len(stmem) // 8))
                 futures_playGeneration = not_finished
                 if not not_finished:
                     break
@@ -128,6 +128,7 @@ if __name__ == "__main__":
                                  configs.TENSORBOARD_PATH + str(episode))]
             ray.get(future_train)
             ray.shutdown()
+            del future_train
             logger_handle.log("============ starting pit =============")
             ray.init(num_cpus=configs.NUM_CPUS)
             futures_pit = [

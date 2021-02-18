@@ -1,0 +1,572 @@
+2021-02-17 12:32:04,216 - root - INFO - ============ created logger =============
+2021-02-17 12:35:57,828 - root - INFO - ============== starting episode 0 ===============
+2021-02-17 12:35:57,830 - root - INFO - saving actual net to run2/models/episode-0.h5
+2021-02-17 12:35:57,830 - root - INFO - ============== starting selfplay ================
+2021-02-17 12:37:52,419 - root - INFO - ============== starting episode 0 ===============
+2021-02-17 12:37:52,422 - root - INFO - saving actual net to run2/models/episode-0.h5
+2021-02-17 12:37:52,422 - root - INFO - ============== starting selfplay ================
+2021-02-17 12:38:19,271 - root - INFO - player won: 0.3333333333333333 turns played: 32
+2021-02-17 12:38:23,002 - root - INFO - player won: -0.0 turns played: 42
+2021-02-17 12:38:23,850 - root - INFO - player won: -0.16666666666666666 turns played: 53
+2021-02-17 12:38:26,616 - root - INFO - player won: -0.0 turns played: 78
+2021-02-17 12:38:27,130 - root - INFO - player won: 0.6666666666666666 turns played: 72
+2021-02-17 12:38:29,228 - root - INFO - player won: -0.16666666666666666 turns played: 89
+2021-02-17 12:38:29,681 - root - INFO - player won: 0.16666666666666666 turns played: 95
+2021-02-17 12:38:29,825 - root - INFO - player won: -0.5 turns played: 91
+2021-02-17 12:38:32,097 - root - INFO - ============== starting training ================
+2021-02-17 12:38:39,046 - root - INFO - ============ starting pit =============
+2021-02-17 12:39:01,444 - root - INFO - player won: 0
+2021-02-17 12:39:01,797 - root - INFO - player won: 0
+2021-02-17 12:39:03,290 - root - INFO - player won: 0
+2021-02-17 12:39:04,431 - root - INFO - player won: 0
+2021-02-17 12:39:07,491 - root - INFO - player won: 0
+2021-02-17 12:39:07,865 - root - INFO - player won: 0
+2021-02-17 12:39:13,134 - root - INFO - player won: 0
+2021-02-17 12:39:15,858 - root - INFO - player won: 0
+2021-02-17 12:39:18,043 - root - INFO - new network accepted
+2021-02-17 12:39:18,044 - root - INFO - changed mem size to 300000
+2021-02-17 12:39:18,044 - root - INFO - ============== starting episode 1 ===============
+2021-02-17 12:39:18,045 - root - INFO - saving actual net to run2/models/episode-1.h5
+2021-02-17 12:39:18,045 - root - INFO - ============== starting selfplay ================
+2021-02-17 12:39:37,595 - root - INFO - player won: -0.0 turns played: 38
+2021-02-17 12:39:40,624 - root - INFO - player won: 0.16666666666666666 turns played: 51
+2021-02-17 12:39:44,979 - root - INFO - player won: -0.5 turns played: 81
+2021-02-17 12:39:45,625 - root - INFO - player won: -0.6666666666666666 turns played: 80
+2021-02-17 12:39:48,070 - root - INFO - player won: -0.3333333333333333 turns played: 100
+2021-02-17 12:39:48,518 - root - INFO - player won: -0.3333333333333333 turns played: 108
+2021-02-17 12:39:50,470 - root - INFO - player won: -0.16666666666666666 turns played: 141
+2021-02-17 12:39:52,743 - root - INFO - player won: -0.16666666666666666 turns played: 161
+2021-02-17 12:39:55,123 - root - INFO - ============== starting training ================
+2021-02-17 12:40:07,404 - root - INFO - ============ starting pit =============
+2021-02-17 12:40:35,738 - root - INFO - player won: 0
+2021-02-17 12:40:35,848 - root - INFO - player won: 0
+2021-02-17 12:40:37,662 - root - INFO - player won: 1
+2021-02-17 12:40:40,655 - root - INFO - player won: 0
+2021-02-17 12:40:50,556 - root - INFO - player won: 0
+2021-02-17 12:40:51,199 - root - INFO - player won: 1
+2021-02-17 12:40:52,758 - root - INFO - player won: 0
+2021-02-17 12:40:57,243 - root - INFO - player won: 0
+2021-02-17 12:40:59,510 - root - INFO - new network accepted
+2021-02-17 12:40:59,511 - root - INFO - changed mem size to 340000
+2021-02-17 12:40:59,511 - root - INFO - ============== starting episode 2 ===============
+2021-02-17 12:40:59,511 - root - INFO - saving actual net to run2/models/episode-2.h5
+2021-02-17 12:40:59,511 - root - INFO - ============== starting selfplay ================
+2021-02-17 12:41:19,504 - root - INFO - player won: -0.16666666666666666 turns played: 27
+2021-02-17 12:41:21,154 - root - INFO - player won: 0.16666666666666666 turns played: 33
+2021-02-17 12:41:23,883 - root - INFO - player won: 0.5 turns played: 45
+2021-02-17 12:41:32,633 - root - INFO - player won: -1 turns played: 101
+2021-02-17 12:41:37,808 - root - INFO - player won: -0.16666666666666666 turns played: 157
+2021-02-17 12:41:40,452 - root - INFO - player won: 0.5 turns played: 195
+2021-02-17 12:41:42,139 - root - INFO - player won: 0.8333333333333334 turns played: 175
+2021-02-17 12:41:43,147 - root - INFO - player won: -1 turns played: 212
+2021-02-17 12:41:45,252 - root - INFO - ============== starting training ================
+2021-02-17 12:42:05,882 - root - INFO - ============ starting pit =============
+2021-02-17 12:42:26,377 - root - INFO - player won: 0
+2021-02-17 12:42:39,061 - root - INFO - player won: 1
+2021-02-17 12:42:39,348 - root - INFO - player won: 0
+2021-02-17 12:42:39,563 - root - INFO - player won: 0
+2021-02-17 12:42:41,003 - root - INFO - player won: 0
+2021-02-17 12:42:41,555 - root - INFO - player won: 0
+2021-02-17 12:42:45,265 - root - INFO - player won: 0
+2021-02-17 12:42:57,396 - root - INFO - player won: 0
+2021-02-17 12:42:59,447 - root - INFO - new network accepted
+2021-02-17 12:42:59,448 - root - INFO - changed mem size to 380000
+2021-02-17 12:42:59,448 - root - INFO - ============== starting episode 3 ===============
+2021-02-17 12:42:59,448 - root - INFO - saving actual net to run2/models/episode-3.h5
+2021-02-17 12:42:59,448 - root - INFO - ============== starting selfplay ================
+2021-02-17 12:43:26,550 - root - INFO - player won: 0.16666666666666666 turns played: 41
+2021-02-17 12:43:27,602 - root - INFO - player won: 0.3333333333333333 turns played: 50
+2021-02-17 12:43:31,861 - root - INFO - player won: -0.3333333333333333 turns played: 72
+2021-02-17 12:43:32,562 - root - INFO - player won: 0.16666666666666666 turns played: 79
+2021-02-17 12:43:38,751 - root - INFO - player won: -0.0 turns played: 108
+2021-02-17 12:43:40,108 - root - INFO - player won: -0.6666666666666666 turns played: 126
+2021-02-17 12:43:40,473 - root - INFO - player won: 0.5 turns played: 119
+2021-02-17 12:43:40,761 - root - INFO - player won: -0.0 turns played: 128
+2021-02-17 12:43:43,092 - root - INFO - ============== starting training ================
+2021-02-17 12:44:21,415 - root - INFO - ============ starting pit =============
+2021-02-17 12:44:49,191 - root - INFO - ============ interupted training ===========
+2021-02-17 12:44:49,191 - root - INFO - Program interrupted by user.
+2021-02-17 14:54:23,319 - root - INFO - =========== restarting training ==========
+2021-02-17 14:54:23,423 - root - INFO - ============== starting episode 3 ===============
+2021-02-17 14:54:23,426 - root - INFO - saving actual net to run2/models/episode-3.h5
+2021-02-17 14:54:23,426 - root - INFO - ============== starting selfplay ================
+2021-02-17 14:54:49,418 - root - INFO - =========== restarting training ==========
+2021-02-17 14:54:49,588 - root - INFO - ============== starting episode 3 ===============
+2021-02-17 14:54:49,594 - root - INFO - saving actual net to run2/models/episode-3.h5
+2021-02-17 14:54:49,594 - root - INFO - ============== starting selfplay ================
+2021-02-17 14:55:14,777 - root - INFO - player won: -0.16666666666666666 turns played: 29
+2021-02-17 14:55:18,032 - root - INFO - player won: -0.16666666666666666 turns played: 39
+2021-02-17 14:55:29,350 - root - INFO - player won: -0.0 turns played: 104
+2021-02-17 14:55:31,555 - root - INFO - player won: -0.6666666666666666 turns played: 114
+2021-02-17 14:55:34,269 - root - INFO - player won: -1 turns played: 133
+2021-02-17 14:55:34,393 - root - INFO - player won: -0.6666666666666666 turns played: 144
+2021-02-17 14:55:35,628 - root - INFO - player won: -1 turns played: 123
+2021-02-17 14:55:38,569 - root - INFO - player won: -1 turns played: 176
+2021-02-17 14:55:40,717 - root - INFO - ============== starting training ================
+2021-02-17 14:55:59,132 - root - INFO - ============ starting pit =============
+2021-02-17 14:56:21,143 - root - INFO - player won: 0
+2021-02-17 14:56:21,267 - root - INFO - player won: 0
+2021-02-17 14:56:21,657 - root - INFO - player won: 0
+2021-02-17 14:56:23,596 - root - INFO - player won: 0
+2021-02-17 14:56:25,552 - root - INFO - player won: 0
+2021-02-17 14:56:38,001 - root - INFO - player won: 0
+2021-02-17 14:56:40,797 - root - INFO - player won: 0
+2021-02-17 14:56:41,202 - root - INFO - player won: -1
+2021-02-17 14:56:43,603 - root - INFO - falling back to old network
+2021-02-17 14:56:43,603 - root - INFO - changed mem size to 420000
+2021-02-17 14:56:43,603 - root - INFO - ============== starting episode 4 ===============
+2021-02-17 14:56:43,603 - root - INFO - saving actual net to run2/models/episode-4.h5
+2021-02-17 14:56:43,603 - root - INFO - ============== starting selfplay ================
+2021-02-17 14:57:05,198 - root - INFO - player won: 0.16666666666666666 turns played: 39
+2021-02-17 14:57:05,666 - root - INFO - player won: -0.0 turns played: 36
+2021-02-17 14:57:05,799 - root - INFO - player won: -0.0 turns played: 32
+2021-02-17 14:57:06,839 - root - INFO - player won: -0.3333333333333333 turns played: 48
+2021-02-17 14:57:09,572 - root - INFO - player won: -0.8333333333333334 turns played: 83
+2021-02-17 14:57:16,985 - root - INFO - player won: -0.16666666666666666 turns played: 149
+2021-02-17 14:57:19,289 - root - INFO - player won: 1 turns played: 142
+2021-02-17 14:57:21,329 - root - INFO - player won: 0.5 turns played: 183
+2021-02-17 14:57:23,591 - root - INFO - ============== starting training ================
+2021-02-17 14:57:41,697 - root - INFO - ============ starting pit =============
+2021-02-17 14:58:04,555 - root - INFO - player won: 0
+2021-02-17 14:58:06,277 - root - INFO - player won: 0
+2021-02-17 14:58:06,710 - root - INFO - player won: 0
+2021-02-17 14:58:06,810 - root - INFO - player won: 0
+2021-02-17 14:58:12,341 - root - INFO - player won: 0
+2021-02-17 14:58:12,773 - root - INFO - player won: 0
+2021-02-17 14:58:24,600 - root - INFO - player won: 0
+2021-02-17 14:58:27,297 - root - INFO - player won: 1
+2021-02-17 14:58:29,108 - root - INFO - new network accepted
+2021-02-17 14:58:29,109 - root - INFO - changed mem size to 460000
+2021-02-17 14:58:29,109 - root - INFO - ============== starting episode 5 ===============
+2021-02-17 14:58:29,109 - root - INFO - saving actual net to run2/models/episode-5.h5
+2021-02-17 14:58:29,109 - root - INFO - ============== starting selfplay ================
+2021-02-17 14:58:49,137 - root - INFO - player won: 0.3333333333333333 turns played: 40
+2021-02-17 14:58:50,526 - root - INFO - player won: -0.0 turns played: 48
+2021-02-17 14:58:53,454 - root - INFO - player won: 1 turns played: 67
+2021-02-17 14:58:54,752 - root - INFO - player won: 0.16666666666666666 turns played: 73
+2021-02-17 14:58:58,433 - root - INFO - player won: 0.5 turns played: 107
+2021-02-17 14:59:02,974 - root - INFO - player won: -0.3333333333333333 turns played: 154
+2021-02-17 14:59:08,667 - root - INFO - player won: 0.16666666666666666 turns played: 209
+2021-02-17 14:59:12,554 - root - INFO - player won: -1 turns played: 258
+2021-02-17 14:59:14,837 - root - INFO - ============== starting training ================
+2021-02-17 14:59:34,677 - root - INFO - ============ starting pit =============
+2021-02-17 14:59:56,588 - root - INFO - player won: 0
+2021-02-17 14:59:57,642 - root - INFO - player won: 0
+2021-02-17 14:59:57,758 - root - INFO - player won: 0
+2021-02-17 15:00:00,774 - root - INFO - player won: 0
+2021-02-17 15:00:09,040 - root - INFO - player won: 0
+2021-02-17 15:00:09,673 - root - INFO - player won: 0
+2021-02-17 15:00:11,589 - root - INFO - player won: 0
+2021-02-17 15:00:17,410 - root - INFO - player won: 1
+2021-02-17 15:00:19,691 - root - INFO - new network accepted
+2021-02-17 15:00:19,692 - root - INFO - changed mem size to 500000
+2021-02-17 15:00:19,692 - root - INFO - ============== starting episode 6 ===============
+2021-02-17 15:00:19,693 - root - INFO - saving actual net to run2/models/episode-6.h5
+2021-02-17 15:00:19,693 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:00:37,583 - root - INFO - player won: 0.16666666666666666 turns played: 27
+2021-02-17 15:00:41,093 - root - INFO - player won: -0.3333333333333333 turns played: 34
+2021-02-17 15:00:43,111 - root - INFO - player won: 0.3333333333333333 turns played: 36
+2021-02-17 15:00:47,136 - root - INFO - player won: 0.5 turns played: 57
+2021-02-17 15:00:49,930 - root - INFO - player won: -0.8333333333333334 turns played: 81
+2021-02-17 15:00:52,983 - root - INFO - player won: -1 turns played: 95
+2021-02-17 15:00:54,366 - root - INFO - player won: 1 turns played: 105
+2021-02-17 15:00:55,297 - root - INFO - player won: 0.5 turns played: 127
+2021-02-17 15:00:57,112 - root - INFO - ============== starting training ================
+2021-02-17 15:01:21,028 - root - INFO - ============ starting pit =============
+2021-02-17 15:01:43,761 - root - INFO - player won: 0
+2021-02-17 15:01:45,075 - root - INFO - player won: 0
+2021-02-17 15:01:46,470 - root - INFO - player won: 0
+2021-02-17 15:01:53,709 - root - INFO - player won: 0
+2021-02-17 15:01:54,193 - root - INFO - player won: 1
+2021-02-17 15:01:56,409 - root - INFO - player won: 0
+2021-02-17 15:01:57,311 - root - INFO - player won: -1
+2021-02-17 15:02:03,866 - root - INFO - player won: 0
+2021-02-17 15:02:06,038 - root - INFO - falling back to old network
+2021-02-17 15:02:06,038 - root - INFO - changed mem size to 540000
+2021-02-17 15:02:06,038 - root - INFO - ============== starting episode 7 ===============
+2021-02-17 15:02:06,039 - root - INFO - saving actual net to run2/models/episode-7.h5
+2021-02-17 15:02:06,039 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:02:30,817 - root - INFO - player won: -0.3333333333333333 turns played: 54
+2021-02-17 15:02:31,632 - root - INFO - player won: 0.6666666666666666 turns played: 46
+2021-02-17 15:02:31,929 - root - INFO - player won: 0.3333333333333333 turns played: 50
+2021-02-17 15:02:35,886 - root - INFO - player won: 0.3333333333333333 turns played: 94
+2021-02-17 15:02:37,276 - root - INFO - player won: -0.5 turns played: 95
+2021-02-17 15:02:37,380 - root - INFO - player won: -0.0 turns played: 90
+2021-02-17 15:02:41,183 - root - INFO - player won: -0.6666666666666666 turns played: 126
+2021-02-17 15:02:42,221 - root - INFO - player won: 1 turns played: 131
+2021-02-17 15:02:44,327 - root - INFO - ============== starting training ================
+2021-02-17 15:03:09,297 - root - INFO - ============ starting pit =============
+2021-02-17 15:03:38,430 - root - INFO - player won: 0
+2021-02-17 15:03:39,642 - root - INFO - player won: 0
+2021-02-17 15:03:41,043 - root - INFO - player won: 0
+2021-02-17 15:03:44,169 - root - INFO - player won: 0
+2021-02-17 15:03:49,083 - root - INFO - player won: 0
+2021-02-17 15:03:51,985 - root - INFO - player won: 0
+2021-02-17 15:03:57,785 - root - INFO - player won: -1
+2021-02-17 15:04:00,797 - root - INFO - player won: -1
+2021-02-17 15:04:03,149 - root - INFO - falling back to old network
+2021-02-17 15:04:03,150 - root - INFO - changed mem size to 580000
+2021-02-17 15:04:03,150 - root - INFO - ============== starting episode 8 ===============
+2021-02-17 15:04:03,150 - root - INFO - saving actual net to run2/models/episode-8.h5
+2021-02-17 15:04:03,150 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:04:08,172 - root - INFO - ============ interupted training ===========
+2021-02-17 15:04:08,172 - root - INFO - None
+2021-02-17 15:10:57,436 - root - INFO - ============== starting episode 0 ===============
+2021-02-17 15:10:57,438 - root - INFO - saving actual net to run2/models/episode-0.h5
+2021-02-17 15:10:57,438 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:11:13,099 - root - INFO - player won: -0.0 turns played: 36
+2021-02-17 15:11:15,531 - root - INFO - player won: -0.16666666666666666 turns played: 37
+2021-02-17 15:11:16,305 - root - INFO - player won: 0.16666666666666666 turns played: 43
+2021-02-17 15:11:19,959 - root - INFO - player won: 0.3333333333333333 turns played: 74
+2021-02-17 15:11:20,881 - root - INFO - player won: 0.8333333333333334 turns played: 77
+2021-02-17 15:11:25,300 - root - INFO - player won: -0.3333333333333333 turns played: 118
+2021-02-17 15:11:28,866 - root - INFO - player won: -0.16666666666666666 turns played: 153
+2021-02-17 15:11:30,124 - root - INFO - player won: 1 turns played: 149
+2021-02-17 15:11:32,444 - root - INFO - ============== starting training ================
+2021-02-17 15:11:41,820 - root - INFO - ============ starting pit =============
+2021-02-17 15:12:02,920 - root - INFO - player won: 0
+2021-02-17 15:12:03,062 - root - INFO - player won: 0
+2021-02-17 15:12:07,628 - root - INFO - player won: -1
+2021-02-17 15:12:08,766 - root - INFO - player won: 0
+2021-02-17 15:12:10,390 - root - INFO - player won: 0
+2021-02-17 15:12:11,260 - root - INFO - player won: 1
+2021-02-17 15:12:13,678 - root - INFO - player won: 0
+2021-02-17 15:12:20,079 - root - INFO - player won: 0
+2021-02-17 15:12:22,476 - root - INFO - falling back to old network
+2021-02-17 15:12:22,476 - root - INFO - changed mem size to 300000
+2021-02-17 15:12:22,476 - root - INFO - ============== starting episode 1 ===============
+2021-02-17 15:12:22,477 - root - INFO - saving actual net to run2/models/episode-1.h5
+2021-02-17 15:12:22,477 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:12:41,130 - root - INFO - player won: -0.16666666666666666 turns played: 49
+2021-02-17 15:12:42,566 - root - INFO - player won: 0.6666666666666666 turns played: 54
+2021-02-17 15:12:47,032 - root - INFO - player won: -1 turns played: 78
+2021-02-17 15:12:48,303 - root - INFO - player won: -0.16666666666666666 turns played: 93
+2021-02-17 15:12:51,286 - root - INFO - player won: -0.6666666666666666 turns played: 120
+2021-02-17 15:12:51,634 - root - INFO - player won: -1 turns played: 117
+2021-02-17 15:12:52,484 - root - INFO - player won: 0.6666666666666666 turns played: 134
+2021-02-17 15:12:54,363 - root - INFO - player won: 1 turns played: 149
+2021-02-17 15:12:56,578 - root - INFO - ============== starting training ================
+2021-02-17 15:13:07,939 - root - INFO - ============ starting pit =============
+2021-02-17 15:13:27,620 - root - INFO - player won: 0
+2021-02-17 15:13:28,884 - root - INFO - player won: 0
+2021-02-17 15:13:34,337 - root - INFO - player won: 0
+2021-02-17 15:13:35,823 - root - INFO - player won: 0
+2021-02-17 15:13:36,614 - root - INFO - player won: -1
+2021-02-17 15:13:36,962 - root - INFO - player won: 0
+2021-02-17 15:13:39,081 - root - INFO - player won: -1
+2021-02-17 15:13:50,491 - root - INFO - player won: 1
+2021-02-17 15:13:52,648 - root - INFO - falling back to old network
+2021-02-17 15:13:52,649 - root - INFO - changed mem size to 340000
+2021-02-17 15:13:52,649 - root - INFO - ============== starting episode 2 ===============
+2021-02-17 15:13:52,649 - root - INFO - saving actual net to run2/models/episode-2.h5
+2021-02-17 15:13:52,649 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:14:13,019 - root - INFO - player won: -0.16666666666666666 turns played: 49
+2021-02-17 15:14:13,140 - root - INFO - player won: 0.16666666666666666 turns played: 53
+2021-02-17 15:14:13,896 - root - INFO - player won: -1 turns played: 57
+2021-02-17 15:14:16,555 - root - INFO - player won: 0.6666666666666666 turns played: 86
+2021-02-17 15:14:16,892 - root - INFO - player won: -1 turns played: 84
+2021-02-17 15:14:24,454 - root - INFO - player won: -1 turns played: 125
+2021-02-17 15:14:25,954 - root - INFO - player won: 0.3333333333333333 turns played: 168
+2021-02-17 15:14:27,503 - root - INFO - player won: -1 turns played: 180
+2021-02-17 15:14:29,814 - root - INFO - ============== starting training ================
+2021-02-17 15:14:41,735 - root - INFO - ============ starting pit =============
+2021-02-17 15:15:02,136 - root - INFO - player won: 0
+2021-02-17 15:15:05,132 - root - INFO - player won: 0
+2021-02-17 15:15:05,469 - root - INFO - player won: 0
+2021-02-17 15:15:05,769 - root - INFO - player won: 0
+2021-02-17 15:15:08,648 - root - INFO - player won: 0
+2021-02-17 15:15:09,121 - root - INFO - player won: 0
+2021-02-17 15:15:11,360 - root - INFO - player won: 0
+2021-02-17 15:15:11,722 - root - INFO - player won: -1
+2021-02-17 15:15:13,928 - root - INFO - falling back to old network
+2021-02-17 15:15:13,928 - root - INFO - changed mem size to 380000
+2021-02-17 15:15:13,928 - root - INFO - ============== starting episode 3 ===============
+2021-02-17 15:15:13,929 - root - INFO - saving actual net to run2/models/episode-3.h5
+2021-02-17 15:15:13,929 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:15:35,992 - root - INFO - player won: -0.16666666666666666 turns played: 57
+2021-02-17 15:15:38,868 - root - INFO - player won: -0.16666666666666666 turns played: 79
+2021-02-17 15:15:43,652 - root - INFO - player won: -1 turns played: 102
+2021-02-17 15:15:48,410 - root - INFO - player won: 0.3333333333333333 turns played: 148
+2021-02-17 15:15:49,407 - root - INFO - player won: 0.16666666666666666 turns played: 159
+2021-02-17 15:15:51,322 - root - INFO - player won: -1 turns played: 175
+2021-02-17 15:15:51,930 - root - INFO - player won: 0.5 turns played: 161
+2021-02-17 15:15:53,230 - root - INFO - player won: -0.16666666666666666 turns played: 169
+2021-02-17 15:15:55,414 - root - INFO - ============== starting training ================
+2021-02-17 15:16:09,421 - root - INFO - ============ starting pit =============
+2021-02-17 15:16:28,174 - root - INFO - player won: 0
+2021-02-17 15:16:36,258 - root - INFO - player won: -1
+2021-02-17 15:16:37,285 - root - INFO - player won: -1
+2021-02-17 15:16:39,794 - root - INFO - player won: -1
+2021-02-17 15:16:40,053 - root - INFO - player won: 0
+2021-02-17 15:16:42,308 - root - INFO - player won: -1
+2021-02-17 15:16:43,895 - root - INFO - player won: 0
+2021-02-17 15:16:44,792 - root - INFO - player won: -1
+2021-02-17 15:16:46,844 - root - INFO - falling back to old network
+2021-02-17 15:16:46,844 - root - INFO - changed mem size to 420000
+2021-02-17 15:16:46,844 - root - INFO - ============== starting episode 4 ===============
+2021-02-17 15:16:46,845 - root - INFO - saving actual net to run2/models/episode-4.h5
+2021-02-17 15:16:46,845 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:17:03,520 - root - INFO - player won: -0.16666666666666666 turns played: 33
+2021-02-17 15:17:10,177 - root - INFO - player won: 0.5 turns played: 63
+2021-02-17 15:17:14,904 - root - INFO - player won: -0.8333333333333334 turns played: 93
+2021-02-17 15:17:16,010 - root - INFO - player won: -0.16666666666666666 turns played: 117
+2021-02-17 15:17:16,111 - root - INFO - player won: -1 turns played: 97
+2021-02-17 15:17:16,226 - root - INFO - player won: -1 turns played: 108
+2021-02-17 15:17:20,360 - root - INFO - player won: -0.5 turns played: 155
+2021-02-17 15:17:20,917 - root - INFO - player won: 1 turns played: 155
+2021-02-17 15:17:23,293 - root - INFO - ============== starting training ================
+2021-02-17 15:17:39,557 - root - INFO - ============ starting pit =============
+2021-02-17 15:18:00,276 - root - INFO - player won: 0
+2021-02-17 15:18:07,657 - root - INFO - player won: 0
+2021-02-17 15:18:11,645 - root - INFO - player won: -1
+2021-02-17 15:18:13,187 - root - INFO - player won: -1
+2021-02-17 15:18:17,622 - root - INFO - player won: 0
+2021-02-17 15:18:18,291 - root - INFO - player won: 1
+2021-02-17 15:18:26,686 - root - INFO - player won: 1
+2021-02-17 15:18:28,497 - root - INFO - player won: 0
+2021-02-17 15:18:30,768 - root - INFO - falling back to old network
+2021-02-17 15:18:30,768 - root - INFO - changed mem size to 460000
+2021-02-17 15:18:30,773 - root - INFO - ============== starting episode 5 ===============
+2021-02-17 15:18:30,774 - root - INFO - saving actual net to run2/models/episode-5.h5
+2021-02-17 15:18:30,774 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:18:51,362 - root - INFO - player won: -0.3333333333333333 turns played: 52
+2021-02-17 15:18:52,167 - root - INFO - player won: -0.3333333333333333 turns played: 62
+2021-02-17 15:18:54,129 - root - INFO - player won: -1 turns played: 67
+2021-02-17 15:18:54,282 - root - INFO - player won: -0.0 turns played: 60
+2021-02-17 15:18:59,417 - root - INFO - player won: -1 turns played: 108
+2021-02-17 15:19:03,616 - root - INFO - player won: 1 turns played: 132
+2021-02-17 15:19:07,193 - root - INFO - player won: 1 turns played: 171
+2021-02-17 15:19:11,137 - root - INFO - player won: -1 turns played: 233
+2021-02-17 15:19:13,342 - root - INFO - ============== starting training ================
+2021-02-17 15:19:30,439 - root - INFO - ============ starting pit =============
+2021-02-17 15:19:49,383 - root - INFO - player won: 0
+2021-02-17 15:19:54,759 - root - INFO - player won: 0
+2021-02-17 15:19:55,950 - root - INFO - player won: 0
+2021-02-17 15:19:56,103 - root - INFO - player won: 0
+2021-02-17 15:19:56,785 - root - INFO - player won: 0
+2021-02-17 15:19:58,264 - root - INFO - player won: 0
+2021-02-17 15:19:58,688 - root - INFO - player won: 0
+2021-02-17 15:20:06,721 - root - INFO - player won: 1
+2021-02-17 15:20:08,808 - root - INFO - new network accepted
+2021-02-17 15:20:08,809 - root - INFO - changed mem size to 500000
+2021-02-17 15:20:08,809 - root - INFO - ============== starting episode 6 ===============
+2021-02-17 15:20:08,810 - root - INFO - saving actual net to run2/models/episode-6.h5
+2021-02-17 15:20:08,810 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:20:26,289 - root - INFO - player won: 0.16666666666666666 turns played: 33
+2021-02-17 15:20:26,707 - root - INFO - player won: -1 turns played: 44
+2021-02-17 15:20:31,141 - root - INFO - player won: 0.3333333333333333 turns played: 70
+2021-02-17 15:20:37,181 - root - INFO - player won: -1 turns played: 103
+2021-02-17 15:20:41,427 - root - INFO - player won: 1 turns played: 140
+2021-02-17 15:20:41,664 - root - INFO - player won: -1 turns played: 146
+2021-02-17 15:20:43,236 - root - INFO - player won: 0.3333333333333333 turns played: 176
+2021-02-17 15:20:47,406 - root - INFO - player won: -0.16666666666666666 turns played: 219
+2021-02-17 15:20:49,699 - root - INFO - ============== starting training ================
+2021-02-17 15:21:07,214 - root - INFO - ============ starting pit =============
+2021-02-17 15:21:25,368 - root - INFO - player won: 0
+2021-02-17 15:21:25,543 - root - INFO - player won: 0
+2021-02-17 15:21:29,457 - root - INFO - player won: 1
+2021-02-17 15:21:30,032 - root - INFO - player won: 0
+2021-02-17 15:21:34,085 - root - INFO - player won: 0
+2021-02-17 15:21:35,986 - root - INFO - player won: 0
+2021-02-17 15:21:36,424 - root - INFO - player won: 1
+2021-02-17 15:21:39,922 - root - INFO - player won: 0
+2021-02-17 15:21:42,121 - root - INFO - new network accepted
+2021-02-17 15:21:42,122 - root - INFO - changed mem size to 540000
+2021-02-17 15:21:42,122 - root - INFO - ============== starting episode 7 ===============
+2021-02-17 15:21:42,123 - root - INFO - saving actual net to run2/models/episode-7.h5
+2021-02-17 15:21:42,123 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:21:56,974 - root - INFO - player won: 0.3333333333333333 turns played: 32
+2021-02-17 15:22:02,933 - root - INFO - player won: 0.16666666666666666 turns played: 63
+2021-02-17 15:22:05,839 - root - INFO - player won: 0.3333333333333333 turns played: 74
+2021-02-17 15:22:09,774 - root - INFO - player won: -0.0 turns played: 108
+2021-02-17 15:22:12,827 - root - INFO - player won: 0.5 turns played: 131
+2021-02-17 15:22:14,814 - root - INFO - player won: -0.6666666666666666 turns played: 150
+2021-02-17 15:22:15,821 - root - INFO - player won: -0.16666666666666666 turns played: 157
+2021-02-17 15:22:20,064 - root - INFO - player won: -1 turns played: 202
+2021-02-17 15:22:22,137 - root - INFO - ============== starting training ================
+2021-02-17 15:22:42,534 - root - INFO - ============ starting pit =============
+2021-02-17 15:23:00,698 - root - INFO - player won: 0
+2021-02-17 15:23:00,965 - root - INFO - player won: 0
+2021-02-17 15:23:03,629 - root - INFO - player won: 0
+2021-02-17 15:23:04,650 - root - INFO - player won: 0
+2021-02-17 15:23:09,092 - root - INFO - player won: 0
+2021-02-17 15:23:09,818 - root - INFO - player won: 1
+2021-02-17 15:23:13,198 - root - INFO - player won: 0
+2021-02-17 15:23:15,663 - root - INFO - player won: 1
+2021-02-17 15:23:18,145 - root - INFO - new network accepted
+2021-02-17 15:23:18,146 - root - INFO - changed mem size to 580000
+2021-02-17 15:23:18,146 - root - INFO - ============== starting episode 8 ===============
+2021-02-17 15:23:18,146 - root - INFO - saving actual net to run2/models/episode-8.h5
+2021-02-17 15:23:18,146 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:23:36,730 - root - INFO - player won: -0.0 turns played: 48
+2021-02-17 15:23:37,386 - root - INFO - player won: -0.0 turns played: 40
+2021-02-17 15:23:40,006 - root - INFO - player won: -0.0 turns played: 64
+2021-02-17 15:23:43,435 - root - INFO - player won: -1 turns played: 80
+2021-02-17 15:23:45,607 - root - INFO - player won: 1 turns played: 105
+2021-02-17 15:23:48,295 - root - INFO - player won: -0.0 turns played: 134
+2021-02-17 15:23:53,085 - root - INFO - player won: -0.0 turns played: 172
+2021-02-17 15:24:01,537 - root - INFO - player won: -0.0 turns played: 280
+2021-02-17 15:24:03,847 - root - INFO - ============== starting training ================
+2021-02-17 15:24:25,612 - root - INFO - ============ starting pit =============
+2021-02-17 15:24:47,977 - root - INFO - player won: 0
+2021-02-17 15:24:50,134 - root - INFO - player won: 0
+2021-02-17 15:24:50,755 - root - INFO - player won: 0
+2021-02-17 15:24:51,999 - root - INFO - player won: 0
+2021-02-17 15:24:54,909 - root - INFO - player won: 0
+2021-02-17 15:24:55,496 - root - INFO - player won: 0
+2021-02-17 15:24:59,051 - root - INFO - player won: 0
+2021-02-17 15:25:02,172 - root - INFO - player won: 0
+2021-02-17 15:25:04,439 - root - INFO - new network accepted
+2021-02-17 15:25:04,440 - root - INFO - changed mem size to 620000
+2021-02-17 15:25:04,440 - root - INFO - ============== starting episode 9 ===============
+2021-02-17 15:25:04,440 - root - INFO - saving actual net to run2/models/episode-9.h5
+2021-02-17 15:25:04,440 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:25:23,017 - root - INFO - player won: -0.16666666666666666 turns played: 39
+2021-02-17 15:25:23,659 - root - INFO - player won: -0.3333333333333333 turns played: 42
+2021-02-17 15:25:25,188 - root - INFO - player won: 0.6666666666666666 turns played: 54
+2021-02-17 15:25:25,348 - root - INFO - player won: -0.0 turns played: 60
+2021-02-17 15:25:28,082 - root - INFO - player won: 0.6666666666666666 turns played: 80
+2021-02-17 15:25:29,070 - root - INFO - player won: 1 turns played: 79
+2021-02-17 15:25:37,965 - root - INFO - player won: -0.5 turns played: 183
+2021-02-17 15:25:50,470 - root - INFO - player won: -0.3333333333333333 turns played: 280
+2021-02-17 15:25:52,717 - root - INFO - ============== starting training ================
+2021-02-17 15:26:15,259 - root - INFO - ============ starting pit =============
+2021-02-17 15:26:35,011 - root - INFO - player won: 0
+2021-02-17 15:26:35,512 - root - INFO - player won: 0
+2021-02-17 15:26:36,525 - root - INFO - player won: 0
+2021-02-17 15:26:41,978 - root - INFO - player won: 0
+2021-02-17 15:26:45,814 - root - INFO - player won: 0
+2021-02-17 15:26:48,195 - root - INFO - player won: 1
+2021-02-17 15:26:49,979 - root - INFO - player won: 0
+2021-02-17 15:26:53,530 - root - INFO - player won: 1
+2021-02-17 15:26:55,721 - root - INFO - new network accepted
+2021-02-17 15:26:55,722 - root - INFO - changed mem size to 660000
+2021-02-17 15:26:55,722 - root - INFO - ============== starting episode 10 ===============
+2021-02-17 15:26:55,722 - root - INFO - saving actual net to run2/models/episode-10.h5
+2021-02-17 15:26:55,722 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:27:14,559 - root - INFO - player won: 0.16666666666666666 turns played: 37
+2021-02-17 15:27:16,435 - root - INFO - player won: -0.0 turns played: 56
+2021-02-17 15:27:17,714 - root - INFO - player won: -0.5 turns played: 61
+2021-02-17 15:27:19,400 - root - INFO - player won: -0.3333333333333333 turns played: 78
+2021-02-17 15:27:25,313 - root - INFO - player won: -0.5 turns played: 127
+2021-02-17 15:27:26,870 - root - INFO - player won: -0.3333333333333333 turns played: 136
+2021-02-17 15:27:27,784 - root - INFO - player won: -0.3333333333333333 turns played: 146
+2021-02-17 15:27:31,947 - root - INFO - player won: -0.16666666666666666 turns played: 185
+2021-02-17 15:27:34,457 - root - INFO - ============== starting training ================
+2021-02-17 15:28:00,947 - root - INFO - ============ starting pit =============
+2021-02-17 15:28:20,096 - root - INFO - player won: 0
+2021-02-17 15:28:21,570 - root - INFO - player won: 0
+2021-02-17 15:28:23,053 - root - INFO - player won: 0
+2021-02-17 15:28:23,226 - root - INFO - player won: 0
+2021-02-17 15:28:24,439 - root - INFO - player won: 0
+2021-02-17 15:28:24,683 - root - INFO - player won: 0
+2021-02-17 15:28:26,579 - root - INFO - player won: 0
+2021-02-17 15:28:29,892 - root - INFO - player won: 0
+2021-02-17 15:28:32,226 - root - INFO - new network accepted
+2021-02-17 15:28:32,226 - root - INFO - changed mem size to 700000
+2021-02-17 15:28:32,227 - root - INFO - ============== starting episode 11 ===============
+2021-02-17 15:28:32,227 - root - INFO - saving actual net to run2/models/episode-11.h5
+2021-02-17 15:28:32,227 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:28:53,408 - root - INFO - player won: 0.16666666666666666 turns played: 49
+2021-02-17 15:29:00,901 - root - INFO - player won: 0.5 turns played: 105
+2021-02-17 15:29:02,602 - root - INFO - player won: -1 turns played: 100
+2021-02-17 15:29:04,260 - root - INFO - player won: 0.5 turns played: 121
+2021-02-17 15:29:16,367 - root - INFO - player won: -0.8333333333333334 turns played: 193
+2021-02-17 15:29:17,047 - root - INFO - player won: 1 turns played: 222
+2021-02-17 15:29:18,128 - root - INFO - player won: -1 turns played: 231
+2021-02-17 15:29:18,733 - root - INFO - player won: -0.6666666666666666 turns played: 222
+2021-02-17 15:29:21,127 - root - INFO - ============== starting training ================
+2021-02-17 15:29:48,282 - root - INFO - ============ starting pit =============
+2021-02-17 15:30:11,728 - root - INFO - player won: 0
+2021-02-17 15:30:11,988 - root - INFO - player won: 0
+2021-02-17 15:30:14,467 - root - INFO - player won: 0
+2021-02-17 15:30:14,669 - root - INFO - player won: 0
+2021-02-17 15:30:14,864 - root - INFO - player won: 0
+2021-02-17 15:30:18,026 - root - INFO - player won: 0
+2021-02-17 15:30:23,473 - root - INFO - player won: 0
+2021-02-17 15:30:23,763 - root - INFO - player won: 0
+2021-02-17 15:30:25,833 - root - INFO - new network accepted
+2021-02-17 15:30:25,834 - root - INFO - changed mem size to 740000
+2021-02-17 15:30:25,834 - root - INFO - ============== starting episode 12 ===============
+2021-02-17 15:30:25,835 - root - INFO - saving actual net to run2/models/episode-12.h5
+2021-02-17 15:30:25,835 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:30:41,460 - root - INFO - player won: -0.0 turns played: 34
+2021-02-17 15:30:49,380 - root - INFO - player won: -0.5 turns played: 63
+2021-02-17 15:30:56,334 - root - INFO - player won: 0.3333333333333333 turns played: 122
+2021-02-17 15:31:02,052 - root - INFO - player won: -1 turns played: 151
+2021-02-17 15:31:02,813 - root - INFO - player won: 0.16666666666666666 turns played: 163
+2021-02-17 15:31:03,801 - root - INFO - player won: -0.5 turns played: 175
+2021-02-17 15:31:05,712 - root - INFO - player won: -0.0 turns played: 182
+2021-02-17 15:31:09,655 - root - INFO - player won: 0.5 turns played: 239
+2021-02-17 15:31:12,121 - root - INFO - ============== starting training ================
+2021-02-17 15:31:42,046 - root - INFO - ============ starting pit =============
+2021-02-17 15:32:00,837 - root - INFO - player won: 0
+2021-02-17 15:32:02,482 - root - INFO - player won: 0
+2021-02-17 15:32:03,512 - root - INFO - player won: 0
+2021-02-17 15:32:04,073 - root - INFO - player won: 0
+2021-02-17 15:32:05,436 - root - INFO - player won: 0
+2021-02-17 15:32:05,791 - root - INFO - player won: 0
+2021-02-17 15:32:07,457 - root - INFO - player won: 0
+2021-02-17 15:32:12,078 - root - INFO - player won: 0
+2021-02-17 15:32:14,399 - root - INFO - new network accepted
+2021-02-17 15:32:14,400 - root - INFO - changed mem size to 780000
+2021-02-17 15:32:14,400 - root - INFO - ============== starting episode 13 ===============
+2021-02-17 15:32:14,400 - root - INFO - saving actual net to run2/models/episode-13.h5
+2021-02-17 15:32:14,401 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:32:31,278 - root - INFO - player won: -0.0 turns played: 34
+2021-02-17 15:32:31,708 - root - INFO - player won: 0.16666666666666666 turns played: 37
+2021-02-17 15:32:32,256 - root - INFO - player won: 0.16666666666666666 turns played: 49
+2021-02-17 15:32:35,014 - root - INFO - player won: -0.6666666666666666 turns played: 56
+2021-02-17 15:32:35,225 - root - INFO - player won: -0.0 turns played: 64
+2021-02-17 15:32:39,354 - root - INFO - player won: 0.6666666666666666 turns played: 104
+2021-02-17 15:32:43,534 - root - INFO - player won: 1 turns played: 144
+2021-02-17 15:32:54,631 - root - INFO - player won: -1 turns played: 252
+2021-02-17 15:32:57,000 - root - INFO - ============== starting training ================
+2021-02-17 15:33:26,975 - root - INFO - ============ starting pit =============
+2021-02-17 15:33:44,463 - root - INFO - player won: 0
+2021-02-17 15:33:46,475 - root - INFO - player won: 0
+2021-02-17 15:33:48,553 - root - INFO - player won: 0
+2021-02-17 15:33:48,775 - root - INFO - player won: 0
+2021-02-17 15:33:48,975 - root - INFO - player won: 0
+2021-02-17 15:33:49,167 - root - INFO - player won: 0
+2021-02-17 15:33:52,164 - root - INFO - player won: 0
+2021-02-17 15:33:52,606 - root - INFO - player won: 0
+2021-02-17 15:33:54,888 - root - INFO - new network accepted
+2021-02-17 15:33:54,888 - root - INFO - changed mem size to 820000
+2021-02-17 15:33:54,888 - root - INFO - ============== starting episode 14 ===============
+2021-02-17 15:33:54,889 - root - INFO - saving actual net to run2/models/episode-14.h5
+2021-02-17 15:33:54,889 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:34:18,496 - root - INFO - player won: -0.0 turns played: 36
+2021-02-17 15:34:19,114 - root - INFO - player won: -0.16666666666666666 turns played: 29
+2021-02-17 15:34:21,009 - root - INFO - player won: 0.16666666666666666 turns played: 37
+2021-02-17 15:34:21,230 - root - INFO - player won: 0.3333333333333333 turns played: 42
+2021-02-17 15:34:21,617 - root - INFO - player won: 0.3333333333333333 turns played: 46
+2021-02-17 15:34:24,449 - root - INFO - player won: -0.0 turns played: 68
+2021-02-17 15:34:45,011 - root - INFO - player won: 1 turns played: 255
+2021-02-17 15:34:45,887 - root - INFO - player won: -1 turns played: 237
+2021-02-17 15:34:48,091 - root - INFO - ============== starting training ================
+2021-02-17 15:35:30,010 - root - INFO - ============ starting pit =============
+2021-02-17 15:35:53,720 - root - INFO - player won: 0
+2021-02-17 15:35:53,991 - root - INFO - player won: 0
+2021-02-17 15:35:54,769 - root - INFO - player won: 0
+2021-02-17 15:35:57,273 - root - INFO - player won: 0
+2021-02-17 15:35:59,846 - root - INFO - player won: 0
+2021-02-17 15:36:01,654 - root - INFO - player won: 0
+2021-02-17 15:36:01,817 - root - INFO - player won: -1
+2021-02-17 15:36:02,854 - root - INFO - player won: 0
+2021-02-17 15:36:05,157 - root - INFO - falling back to old network
+2021-02-17 15:36:05,157 - root - INFO - changed mem size to 860000
+2021-02-17 15:36:05,157 - root - INFO - ============== starting episode 15 ===============
+2021-02-17 15:36:05,157 - root - INFO - saving actual net to run2/models/episode-15.h5
+2021-02-17 15:36:05,158 - root - INFO - ============== starting selfplay ================
+2021-02-17 15:36:29,051 - root - INFO - player won: 0.16666666666666666 turns played: 51
+2021-02-17 15:36:41,439 - root - INFO - player won: 0.3333333333333333 turns played: 112
+2021-02-17 15:36:42,246 - root - INFO - player won: -1 turns played: 123
+2021-02-17 15:36:42,470 - root - INFO - player won: 1 turns played: 114
+2021-02-17 15:36:53,125 - root - INFO - player won: 0.3333333333333333 turns played: 216
+2021-02-17 15:36:55,207 - root - INFO - player won: -0.6666666666666666 turns played: 194
+2021-02-17 15:36:58,132 - root - INFO - player won: 1.0 turns played: 246
+2021-02-17 15:36:59,015 - root - INFO - player won: -0.0 turns played: 280
+2021-02-17 15:37:01,441 - root - INFO - ============== starting training ================
+2021-02-17 15:37:08,137 - root - INFO - ============ interupted training ===========
+2021-02-17 15:37:08,137 - root - INFO - None
