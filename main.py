@@ -57,8 +57,11 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
     return winner
 
 
-@ray.remote
+@ray.remote(num_gpus=1)
 def train_net(in_path, out_path, train_data, tensorboard_path):
+    physical_devices = tf.config.list_physical_devices('GPU')
+    for gpu_instance in physical_devices:
+        tf.config.experimental.set_memory_growth(gpu_instance, True)
     tensorboard_callback = keras.callbacks.TensorBoard(tensorboard_path, update_freq=10,
                                                        profile_batch=0)
     current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE,
@@ -126,7 +129,7 @@ if __name__ == "__main__":
             gc.collect()
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
-            ray.init(include_dashboard=False)
+            ray.init(include_dashboard=False, num_gpus=1)
             future_train = [
                 train_net.remote(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
                                  configs.TENSORBOARD_PATH + str(episode))]
