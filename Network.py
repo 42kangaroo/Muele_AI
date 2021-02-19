@@ -17,7 +17,9 @@ def build_input(filters, kernel_size, input_layer):
     residual4 = ResidualLayer(filters, kernel_size)(residual3)
     residual5 = ResidualLayer(filters, kernel_size)(residual4)
     residual6 = ResidualLayer(filters, kernel_size)(residual5)
-    return residual6
+    residual7 = ResidualLayer(filters, kernel_size)(residual6)
+    residual8 = ResidualLayer(filters, kernel_size)(residual7)
+    return residual8
 
 
 def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer, base_input):

@@ -80,6 +80,8 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
 
 if __name__ == "__main__":
     ray.shutdown()
+    os.environ['http_proxy'] = ''
+    os.environ['https_proxy'] = ''
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     logger_handle = logger.Logger(configs.LOGGER_PATH)
     current_mem_size = configs.MIN_MEMORY
@@ -103,10 +105,11 @@ if __name__ == "__main__":
             copy(configs.BEST_PATH, current_Network_path)
             logger_handle.log("saving actual net to " + current_Network_path)
             logger_handle.log("============== starting selfplay ================")
-            ray.init(num_cpus=configs.NUM_CPUS)
+            ray.init(num_cpus=configs.NUM_CPUS, include_dashboard=False)
             futures_playGeneration = [
                 execute_generate_play.remote(configs.BEST_PATH, configs.SIMS_FAKTOR,
                                              configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
+
             while True:
                 finished, not_finished = ray.wait(futures_playGeneration)
                 gc.collect()
@@ -114,15 +117,16 @@ if __name__ == "__main__":
                 mem.addToMem(stmem)
                 logger_handle.log("player won: " + str(stmem[0][6]) + " turns played: " + str(len(stmem) // 8))
                 futures_playGeneration = not_finished
-                if not not_finished:
+                if len(not_finished) == 0:
                     break
+            logger_handle.log("shutting down ray")
             ray.shutdown()
             del stmem
             del finished
             gc.collect()
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
-            ray.init()
+            ray.init(include_dashboard=False)
             future_train = [
                 train_net.remote(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
                                  configs.TENSORBOARD_PATH + str(episode))]
@@ -130,7 +134,7 @@ if __name__ == "__main__":
             ray.shutdown()
             del future_train
             logger_handle.log("============ starting pit =============")
-            ray.init(num_cpus=configs.NUM_CPUS)
+            ray.init(num_cpus=configs.NUM_CPUS, include_dashboard=False)
             futures_pit = [
                 execute_pit.remote(configs.BEST_PATH, configs.NEW_NET_PATH, 1 if pit_iter % 2 == 0 else -1,
                                    configs.SIMS_FAKTOR,
@@ -147,8 +151,9 @@ if __name__ == "__main__":
                     oldWins += 1
                 logger_handle.log("player won: " + str(winner))
                 futures_pit = not_finished
-                if not not_finished:
+                if len(not_finished) == 0:
                     break
+            logger_handle.log("shutting down ray")
             ray.shutdown()
             del finished
             del winner

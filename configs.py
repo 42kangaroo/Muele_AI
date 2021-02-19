@@ -6,7 +6,7 @@ TURNS_UNTIL_TAU0 = 10
 CPUCT = 6
 SIMS_FAKTOR = 8
 SIMS_EXPONENT = 1.15
-EPISODES = 150
+EPISODES = 180
 MIN_MEMORY = 200000
 MAX_MEMORY = 600000
 MEMORY_ITERS = 15
@@ -22,10 +22,10 @@ OUT_KERNEL_SIZE = 1
 HIDDEN_SIZE = 196
 INPUT_SIZE = 8, 3, 4
 NUM_ACTIONS = 24
-NETWORK_PATH = "run2/models/episode-"
-BEST_PATH = "run2/models/best_net.h5"
-NEW_NET_PATH = "run2/models/new_net.h5"
-TENSORBOARD_PATH = "run2/Tensorboard/episode-"
+NETWORK_PATH = "run3/models/episode-"
+BEST_PATH = "run3/models/best_net.h5"
+NEW_NET_PATH = "run3/models/new_net.h5"
+TENSORBOARD_PATH = "run3/Tensorboard/episode-"
 
 # EVAL
 
@@ -33,6 +33,6 @@ EVAL_EPISODES = 24
 SCORING_THRESHOLD = 1.17
 
 # GENERAL
-NUM_CPUS = 8
+NUM_CPUS = 12
 TRAINING_LOOPS = 50
-LOGGER_PATH = "run2/AlphaLog.log"
+LOGGER_PATH = "run3/AlphaLog.log"
