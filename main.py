@@ -17,7 +17,7 @@ import mcts
 import memory
 
 
-@ray.remote(num_cpus=1, num_gpus=0, max_task_retries=0, max_retries=0, max_restarts=0)
+@ray.remote(num_cpus=1, num_gpus=0, max_retries=0)
 def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     gc.collect()
@@ -37,7 +37,7 @@ def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
     return stmem
 
 
-@ray.remote(num_cpus=1, num_gpus=0, max_task_retries=0, max_retries=0, max_restarts=0)
+@ray.remote(num_cpus=1, num_gpus=0, max_retries=0)
 def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
     gc.collect()
@@ -57,7 +57,7 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
     return winner
 
 
-@ray.remote(num_gpus=1, max_task_retries=0, max_retries=0, max_restarts=0)
+@ray.remote(num_gpus=1, max_retries=0)
 def train_net(in_path, out_path, train_data, tensorboard_path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     physical_devices = tf.config.list_physical_devices('GPU')
