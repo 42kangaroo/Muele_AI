@@ -17,7 +17,7 @@ import mcts
 import memory
 
 
-@ray.remote(num_cpus=1, num_gpus=0)
+@ray.remote(num_cpus=1, num_gpus=0, max_task_retries=0, max_retries=0, max_restarts=0)
 def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     gc.collect()
@@ -37,7 +37,7 @@ def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
     return stmem
 
 
-@ray.remote(num_cpus=1, num_gpus=0)
+@ray.remote(num_cpus=1, num_gpus=0, max_task_retries=0, max_retries=0, max_restarts=0)
 def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
     gc.collect()
@@ -57,8 +57,9 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
     return winner
 
 
-@ray.remote(num_gpus=1)
+@ray.remote(num_gpus=1, max_task_retries=0, max_retries=0, max_restarts=0)
 def train_net(in_path, out_path, train_data, tensorboard_path):
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     physical_devices = tf.config.list_physical_devices('GPU')
     for gpu_instance in physical_devices:
         tf.config.experimental.set_memory_growth(gpu_instance, True)
@@ -131,7 +132,7 @@ if __name__ == "__main__":
             mem.saveState(episode, configs.INTERMEDIATE_SAVE_PATH + "interrupt_array.npy", configs.INTERMEDIATE_SAVE_PATH + "interrupted_vars.obj")
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
-            ray.init(include_dashboard=False, num_gpus=1)
+            ray.init(include_dashboard=False, num_cpus=1)
             future_train = [
                 train_net.remote(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
                                  configs.TENSORBOARD_PATH + str(episode))]
