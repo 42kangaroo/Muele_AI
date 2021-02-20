@@ -127,6 +127,8 @@ if __name__ == "__main__":
             del stmem
             del finished
             gc.collect()
+            logger_handle.log("saving intermediate arrays")
+            mem.saveState(episode, configs.INTERMEDIATE_SAVE_PATH + "interrupt_array.npy", configs.INTERMEDIATE_SAVE_PATH + "interrupted_vars.obj")
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
             ray.init(include_dashboard=False, num_gpus=1)
@@ -179,6 +181,7 @@ if __name__ == "__main__":
         print(e)
         logger_handle.log("============ interupted training ===========")
         logger_handle.log(str(e.__doc__))
+        logger_handle.log(str(e))
         mem.saveState(episode, "interrupt_array.npy", "interrupted_vars.obj")
     finally:
         ray.shutdown()
