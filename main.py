@@ -72,7 +72,7 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
     current_Network.compile(optimizer='adam',
                             loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
                             loss_weights=[0.5, 0.5],
-                            metrics=['accuracy'])
+                            metrics=['accuracy'], workers=0, use_multiprocessing=False)
     current_Network.fit(
         encoders.prepareForNetwork(train_data[0], train_data[1], train_data[2], train_data[3],
                                    train_data[4]),
