@@ -1,9 +1,10 @@
 import gc
+import multiprocessing as mp
 import os
+from functools import partial
 from os.path import isfile
 from shutil import copy
 
-import ray
 import tensorflow as tf
 from numpy import zeros
 from tensorflow import keras
@@ -17,7 +18,6 @@ import mcts
 import memory
 
 
-@ray.remote(num_cpus=1, num_gpus=0, max_retries=0)
 def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     gc.collect()
@@ -37,7 +37,6 @@ def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
     return stmem
 
 
-@ray.remote(num_cpus=1, num_gpus=0, max_retries=0)
 def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAKTOR,
                 exponent=configs.SIMS_EXPONENT):
     gc.collect()
@@ -57,7 +56,6 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
     return winner
 
 
-@ray.remote(num_gpus=1, max_retries=0)
 def train_net(in_path, out_path, train_data, tensorboard_path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     physical_devices = tf.config.list_physical_devices('GPU')
@@ -78,30 +76,38 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
                                    train_data[4]),
         {'policy_output': train_data[5],
          'value_output': train_data[6]}, epochs=configs.EPOCHS,
-        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback] , workers=0, use_multiprocessing=False)
+        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
     current_Network.save_weights(out_path)
 
 
+def save_first_net(path):
+    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    current_Network.save_weights(path)
+
+
+def save_whole_net(weights_path, model_path):
+    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    current_Network.load_weights(weights_path)
+    current_Network.save(model_path)
+
+
 if __name__ == "__main__":
-    ray.shutdown()
-    os.environ['http_proxy'] = ''
-    os.environ['https_proxy'] = ''
-    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     logger_handle = logger.Logger(configs.LOGGER_PATH)
     current_mem_size = configs.MIN_MEMORY
     mem = memory.Memory(current_mem_size, configs.MAX_MEMORY)
     episode = 0
-    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    init_net_p = mp.Process(target=save_first_net, args=(configs.BEST_PATH,))
+    init_net_p.start()
+    init_net_p.join()
+    del init_net_p
+    gc.collect()
+    copy("configs.py", configs.INTERMEDIATE_SAVE_PATH + "configs.py")
     if isfile("interrupt_array.npy") and isfile("interrupted_vars.obj"):
         episode = mem.loadState("interrupt_array.npy", "interrupted_vars.obj")
-        current_Network.load_weights(configs.NETWORK_PATH + str(episode) + ".h5")
+        copy(configs.NETWORK_PATH + str(episode) + ".h5", configs.BEST_PATH)
         logger_handle.log("=========== restarting training ==========")
-    current_Network.save_weights(configs.BEST_PATH)
-    del current_Network
-    keras.backend.clear_session()
-    tf.compat.v1.reset_default_graph()
-    gc.collect()
     try:
         while episode <= configs.TRAINING_LOOPS:
             logger_handle.log("============== starting episode " + str(episode) + " ===============")
@@ -109,60 +115,43 @@ if __name__ == "__main__":
             copy(configs.BEST_PATH, current_Network_path)
             logger_handle.log("saving actual net to " + current_Network_path)
             logger_handle.log("============== starting selfplay ================")
-            ray.init(num_cpus=configs.NUM_CPUS, include_dashboard=False)
-            futures_playGeneration = [
-                execute_generate_play.remote(configs.BEST_PATH, configs.SIMS_FAKTOR,
-                                             configs.SIMS_EXPONENT) for play in range(configs.EPISODES)]
-
-            while True:
-                finished, not_finished = ray.wait(futures_playGeneration)
-                gc.collect()
-                stmem = ray.get(finished)[0]
-                mem.addToMem(stmem)
-                logger_handle.log("player won: " + str(stmem[0][6]) + " turns played: " + str(len(stmem) // 8))
-                futures_playGeneration = not_finished
-                if len(not_finished) == 0:
-                    break
-            logger_handle.log("shutting down ray")
-            ray.shutdown()
-            del stmem
-            del finished
+            with mp.Pool(configs.NUM_CPUS) as pool:
+                for stmem in pool.imap_unordered(partial(execute_generate_play, configs.BEST_PATH, configs.SIMS_FAKTOR),
+                                                 [
+                                                     configs.SIMS_EXPONENT for play in
+                                                     range(configs.EPISODES)]):
+                    mem.addToMem(stmem)
+                    logger_handle.log("player won: " + str(stmem[0][6]) + " turns played: " + str(len(stmem) // 8))
+                    del stmem
+                    gc.collect()
+            del pool
             gc.collect()
             logger_handle.log("saving intermediate arrays")
-            mem.saveState(episode, configs.INTERMEDIATE_SAVE_PATH + "interrupt_array.npy", configs.INTERMEDIATE_SAVE_PATH + "interrupted_vars.obj")
+            mem.saveState(episode, configs.INTERMEDIATE_SAVE_PATH + "interrupt_array.npy",
+                          configs.INTERMEDIATE_SAVE_PATH + "interrupted_vars.obj")
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
-            ray.init(include_dashboard=False, num_cpus=1)
-            future_train = [
-                train_net.remote(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
-                                 configs.TENSORBOARD_PATH + str(episode))]
-            ray.get(future_train)
-            ray.shutdown()
-            del future_train
+            train_p = mp.Process(
+                target=train_net, args=(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
+                                        configs.TENSORBOARD_PATH + str(episode)))
+            train_p.start()
+            train_p.join()
+            del train_p
+            gc.collect()
             logger_handle.log("============ starting pit =============")
-            ray.init(num_cpus=configs.NUM_CPUS, include_dashboard=False)
-            futures_pit = [
-                execute_pit.remote(configs.BEST_PATH, configs.NEW_NET_PATH, 1 if pit_iter % 2 == 0 else -1,
-                                   configs.SIMS_FAKTOR,
-                                   configs.SIMS_EXPONENT) for pit_iter in range(configs.EVAL_EPISODES)]
             oldWins = 0
             newWins = 0
-            while True:
-                finished, not_finished = ray.wait(futures_pit)
-                gc.collect()
-                winner = ray.get(finished)[0]
-                if winner == 1:
-                    newWins += 1
-                elif winner == -1:
-                    oldWins += 1
-                logger_handle.log("player won: " + str(winner))
-                futures_pit = not_finished
-                if len(not_finished) == 0:
-                    break
-            logger_handle.log("shutting down ray")
-            ray.shutdown()
-            del finished
-            del winner
+            with mp.Pool(configs.NUM_CPUS) as pool:
+                for win in pool.imap_unordered(
+                        partial(execute_pit, configs.BEST_PATH, configs.NEW_NET_PATH, exponent=configs.SIMS_EXPONENT,
+                                multiplikator=configs.SIMS_FAKTOR),
+                        [1 if pit_iter % 2 == 0 else -1 for pit_iter in range(configs.EVAL_EPISODES)]):
+                    if win == 1:
+                        newWins += 1
+                    elif win == -1:
+                        oldWins += 1
+                    logger_handle.log("player won: " + str(win))
+            del pool
             gc.collect()
             if newWins < oldWins * configs.SCORING_THRESHOLD:  # not better then previus
                 logger_handle.log("falling back to old network")
@@ -176,6 +165,10 @@ if __name__ == "__main__":
                 mem.changeMaxSize(current_mem_size)
             episode += 1
         logger_handle.log("============ finisched AlphaZero ===========")
+        save_p = mp.Process(target=save_whole_net,
+                            args=(configs.BEST_PATH, configs.INTERMEDIATE_SAVE_PATH + "models/whole_net"))
+        save_p.start()
+        save_p.join()
         mem.saveState(episode, "finished_array.npy", "finisched_vars.obj")
     except BaseException as e:
         print(e.__doc__)
@@ -183,6 +176,8 @@ if __name__ == "__main__":
         logger_handle.log("============ interupted training ===========")
         logger_handle.log(str(e.__doc__))
         logger_handle.log(str(e))
+        save_p = mp.Process(target=save_whole_net,
+                            args=(configs.BEST_PATH, configs.INTERMEDIATE_SAVE_PATH + "models/whole_net"))
+        save_p.start()
+        save_p.join()
         mem.saveState(episode, "interrupt_array.npy", "interrupted_vars.obj")
-    finally:
-        ray.shutdown()
