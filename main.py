@@ -81,12 +81,14 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
 
 
 def save_first_net(path):
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                       configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
     current_Network.save_weights(path)
 
 
 def save_whole_net(weights_path, model_path):
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                       configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
     current_Network.load_weights(weights_path)
