@@ -1,8 +1,7 @@
 import PySimpleGUI as psGui
 import numpy as np
+from tensorflow import keras
 
-import Network
-import configs
 from MillEnv import MillEnv
 from mcts import State, MonteCarloTreeSearch, generate_empty_nodes
 
@@ -140,9 +139,7 @@ class MillDisplayer(object):
 
 class ModeratedGraphics(object):
     def __init__(self, network_path, faktor, exponent):
-        self.nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                    configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-        self.nnet.load_weights(network_path)
+        self.nnet = keras.models.load_model(network_path)
         self.exponent = exponent
         self.faktor = faktor
         self.env = MillEnv()
@@ -275,5 +272,5 @@ class ModeratedGraphics(object):
 
 
 if __name__ == "__main__":
-    MCGraphics = ModeratedGraphics("run1/models/episode-20.h5", 8, 1.15)
+    MCGraphics = ModeratedGraphics("models/whole_net", 8, 1.15)
     MCGraphics.playLoop()

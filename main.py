@@ -97,6 +97,7 @@ def save_whole_net(weights_path, model_path):
 
 if __name__ == "__main__":
     logger_handle = logger.Logger(configs.LOGGER_PATH)
+    logger_handle = logger.Logger(configs.LOGGER_PATH)
     current_mem_size = configs.MIN_MEMORY
     mem = memory.Memory(current_mem_size, configs.MAX_MEMORY)
     episode = 0
@@ -117,7 +118,7 @@ if __name__ == "__main__":
             copy(configs.BEST_PATH, current_Network_path)
             logger_handle.log("saving actual net to " + current_Network_path)
             logger_handle.log("============== starting selfplay ================")
-            with mp.Pool(configs.NUM_CPUS) as pool:
+            with mp.Pool(configs.NUM_CPUS, maxtasksperchild=10) as pool:
                 for stmem in pool.imap_unordered(partial(execute_generate_play, configs.BEST_PATH, configs.SIMS_FAKTOR),
                                                  [
                                                      configs.SIMS_EXPONENT for play in
@@ -143,7 +144,7 @@ if __name__ == "__main__":
             logger_handle.log("============ starting pit =============")
             oldWins = 0
             newWins = 0
-            with mp.Pool(configs.NUM_CPUS) as pool:
+            with mp.Pool(configs.NUM_CPUS, maxtasksperchild=10) as pool:
                 for win in pool.imap_unordered(
                         partial(execute_pit, configs.BEST_PATH, configs.NEW_NET_PATH, exponent=configs.SIMS_EXPONENT,
                                 multiplikator=configs.SIMS_FAKTOR),

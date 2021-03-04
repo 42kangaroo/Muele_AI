@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 
+
 def build_input(filters, kernel_size, input_layer):
     conv = keras.layers.Conv2D(
         filters=filters

@@ -76,10 +76,10 @@ class State(object):
 
     def expand(self, move, nnet):
         child_node: State = self.children[move]
+        if abs(child_node.is_terminal_node()) == 1:
+            return child_node, child_node.is_terminal_node()
         if not child_node.is_visited:
             child_node.is_visited = True
-            if abs(child_node.is_terminal_node()) == 1:
-                return child_node, child_node.is_terminal_node()
             val = child_node.setValAndPriors(nnet)
             if generate_empty_nodes(child_node):
                 return child_node.expand(child_node.valid_moves[0], None)
