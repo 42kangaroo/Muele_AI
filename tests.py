@@ -13,7 +13,7 @@ class NetworkTest(unittest.TestCase):
     def setUp(self) -> None:
         import Network
         self.env = MillEnv.MillEnv()
-        self.net = Network.get_net(96, 3, 256, 4, 1, 24, (8, 3, 4))
+        self.net = Network.get_net(96, 3, 256, 4, 1, 76, (8, 3, 4))
 
     def test_create(self):
         self.assertEqual(2, len(

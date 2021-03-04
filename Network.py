@@ -39,9 +39,12 @@ def build_policy(filters, kernel_size, hidden_size, num_actions, input_layer, ba
     p_dropout = keras.layers.Dropout(.2)(p_dense1)
     p_dense2 = keras.layers.Dense(hidden_size, activation='relu',
                                   kernel_initializer=keras.initializers.he_normal())(p_dropout)
-    p_out = keras.layers.Dense(num_actions, activation='linear',
-                               kernel_initializer=keras.initializers.he_normal(), name="policy_output")(
+    p_all_actions = keras.layers.Dense(num_actions, activation='linear',
+                                       kernel_initializer=keras.initializers.he_normal())(
         p_dense2)
+
+    p_out = SliceLayer(name="policy_output")(
+        [p_all_actions, base_input[:, 0, 0, 3]])
     return p_out
 
 
@@ -110,6 +113,23 @@ class ResidualLayer(keras.layers.Layer):
 
     def get_config(self):
         return {"conv_filters": self.conv1.filters, "kernel_size": self.conv1.kernel_size}
+
+
+class SliceLayer(keras.layers.Layer):
+
+    def call(self, inputs, **kwargs):
+        moveNeeded = inputs[1]
+        inputs = inputs[0]
+        out_tensor = inputs[:, 0:24]
+        pos_zeros = tf.reshape(tf.equal(moveNeeded, tf.constant(0.)), (-1, 1))
+        pos_ones = tf.reshape(tf.equal(moveNeeded, tf.constant(1.)), (-1, 1))
+        pos_twos = tf.reshape(tf.equal(moveNeeded, tf.constant(2.)), (-1, 1))
+        pos_threes = tf.reshape(tf.equal(moveNeeded, tf.constant(3.)), (-1, 1))
+        out_tensor = tf.where(pos_zeros, inputs[:, 0:24], out_tensor)
+        out_tensor = tf.where(pos_ones, inputs[:, 24:48], out_tensor)
+        out_tensor = tf.where(pos_twos, tf.concat([inputs[:, 72:76], out_tensor[:, 0:20]], axis=1), out_tensor)
+        out_tensor = tf.where(pos_threes, inputs[:, 48:72], out_tensor)
+        return out_tensor
 
 
 def cross_entropy_with_logits(y_true, y_pred):
