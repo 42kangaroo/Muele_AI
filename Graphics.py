@@ -139,7 +139,7 @@ class MillDisplayer(object):
 
 class ModeratedGraphics(object):
     def __init__(self, network_path, faktor, exponent):
-        self.nnet = keras.models.load_model(network_path)
+        self.nnet = keras.models.load_model(network_path, compile=False)
         self.exponent = exponent
         self.faktor = faktor
         self.env = MillEnv()
@@ -272,5 +272,5 @@ class ModeratedGraphics(object):
 
 
 if __name__ == "__main__":
-    MCGraphics = ModeratedGraphics("models/whole_net", 8, 1.15)
+    MCGraphics = ModeratedGraphics("run4/models/whole_net", 12, 1.05)
     MCGraphics.playLoop()

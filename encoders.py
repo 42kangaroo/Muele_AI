@@ -24,7 +24,7 @@ def prepareForNetwork(boards, player, moveNeeded, gamePhase, selected=None):
             if not isinstance(sel, tuple):
                 sel = sel // 3, sel % 3, 0
             networkState[i, sel] = 2
-    return networkState.reshape(-1, 8, 3, 4)
+    return networkState.reshape(-1, 24, 4)
 
 
 def getSymetries(board: np.ndarray, selected=None):

@@ -6,7 +6,7 @@ from os.path import isfile
 from shutil import copy
 
 import tensorflow as tf
-from numpy import zeros
+from numpy import zeros, full
 from tensorflow import keras
 
 import MillEnv
@@ -22,8 +22,8 @@ def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
                           exponent=configs.SIMS_EXPONENT):
     gc.collect()
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    nnet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                           configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    nnet = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                           configs.NUM_ACTIONS, configs.INPUT_SIZE)
     nnet.load_weights(nnet_path)
     env = MillEnv.MillEnv()
     mcts_ = mcts.MonteCarloTreeSearch(mcts.State(zeros((1, 24)), 0, -env.isPlaying, env))
@@ -41,10 +41,10 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
                 exponent=configs.SIMS_EXPONENT):
     gc.collect()
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    oldNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                             configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
-    newNet = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                             configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    oldNet = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                             configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    newNet = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                             configs.NUM_ACTIONS, configs.INPUT_SIZE)
     oldNet.load_weights(oldNet_path)
     newNet.load_weights(newNet_path)
     winner = mcts.pit(oldNet, newNet, begins, multiplikator, exponent)
@@ -62,41 +62,41 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
     for gpu_instance in physical_devices:
         tf.config.experimental.set_memory_growth(gpu_instance, True)
     tensorboard_callback = keras.callbacks.TensorBoard(tensorboard_path, update_freq=10,
-                                                       profile_batch=0)
-    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE,
-                                      configs.OUT_FILTERS,
-                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+                                                       profile_batch=2)
+    current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                      configs.NUM_ACTIONS, configs.INPUT_SIZE)
     current_Network.load_weights(in_path)
     current_Network.compile(optimizer='adam',
                             loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
                             loss_weights=[0.5, 0.5],
                             metrics=['accuracy'])
     current_Network.fit(
-        encoders.prepareForNetwork(train_data[0], train_data[1], train_data[2], train_data[3],
-                                   train_data[4]),
+        [encoders.prepareForNetwork(train_data[0], train_data[1], train_data[2], train_data[3],
+                                    train_data[4]),
+         full(fill_value=configs.FILTERS_ARRAY, shape=(len(train_data[0]), 24, 24))],
         {'policy_output': train_data[5],
          'value_output': train_data[6]}, epochs=configs.EPOCHS,
-        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
+        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback], shuffle=True)
     current_Network.save_weights(out_path)
 
 
 def save_first_net(path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                      configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    print(current_Network.summary())
     current_Network.save_weights(path)
 
 
 def save_whole_net(weights_path, model_path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    current_Network = Network.get_net(configs.FILTERS, configs.KERNEL_SIZE, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                      configs.OUT_KERNEL_SIZE, configs.NUM_ACTIONS, configs.INPUT_SIZE)
+    current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                      configs.NUM_ACTIONS, configs.INPUT_SIZE)
     current_Network.load_weights(weights_path)
     current_Network.save(model_path)
 
 
 if __name__ == "__main__":
-    logger_handle = logger.Logger(configs.LOGGER_PATH)
     logger_handle = logger.Logger(configs.LOGGER_PATH)
     current_mem_size = configs.MIN_MEMORY
     mem = memory.Memory(current_mem_size, configs.MAX_MEMORY)
@@ -107,6 +107,7 @@ if __name__ == "__main__":
     del init_net_p
     gc.collect()
     copy("configs.py", configs.INTERMEDIATE_SAVE_PATH + "configs.py")
+    copy(configs.BEST_PATH, configs.NEW_NET_PATH)
     if isfile("interrupt_array.npy") and isfile("interrupted_vars.obj"):
         episode = mem.loadState("interrupt_array.npy", "interrupted_vars.obj")
         copy(configs.NETWORK_PATH + str(episode) + ".h5", configs.BEST_PATH)
@@ -117,6 +118,9 @@ if __name__ == "__main__":
             current_Network_path = configs.NETWORK_PATH + str(episode) + ".h5"
             copy(configs.BEST_PATH, current_Network_path)
             logger_handle.log("saving actual net to " + current_Network_path)
+            logger_handle.log("saving intermediate arrays")
+            mem.saveState(episode, configs.INTERMEDIATE_SAVE_PATH + "interrupt_array.npy",
+                          configs.INTERMEDIATE_SAVE_PATH + "interrupted_vars.obj")
             logger_handle.log("============== starting selfplay ================")
             with mp.Pool(configs.NUM_CPUS, maxtasksperchild=10) as pool:
                 for stmem in pool.imap_unordered(partial(execute_generate_play, configs.BEST_PATH, configs.SIMS_FAKTOR),
@@ -135,7 +139,7 @@ if __name__ == "__main__":
             logger_handle.log("============== starting training ================")
             train_data = mem.getTrainSamples()
             train_p = mp.Process(
-                target=train_net, args=(configs.BEST_PATH, configs.NEW_NET_PATH, train_data,
+                target=train_net, args=(configs.NEW_NET_PATH, configs.NEW_NET_PATH, train_data,
                                         configs.TENSORBOARD_PATH + str(episode)))
             train_p.start()
             train_p.join()

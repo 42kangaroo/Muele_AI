@@ -88,9 +88,11 @@ class State(object):
 
     def setValAndPriors(self, nnet):
         if self.is_terminal_node() == 0:
-            self.priors, val = nnet(convert_to_tensor(
-                encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
-                                           [self.state[2][1 if self.state[1] == 1 else 0]], [self.state[7]])))
+            self.priors, val = nnet(
+                [convert_to_tensor(encoders.prepareForNetwork([self.state[0]], [self.state[1]], [self.state[3]],
+                                                              [self.state[2][1 if self.state[1] == 1 else 0]],
+                                                              [self.state[7]])),
+                 convert_to_tensor(configs.FILTERS_ARRAY.reshape(-1, 24, 24))])
             mask = np.ones(self.priors.shape, dtype=bool)
             mask[0, self.valid_moves] = False
             self.priors = np.array(self.priors)
