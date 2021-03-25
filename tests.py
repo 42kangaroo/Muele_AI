@@ -37,11 +37,11 @@ class NetworkTest(unittest.TestCase):
                          loss_weights=[0.5, 0.5],
                          metrics=['accuracy'])
         self.net.fit(
-            [encoders.prepareForNetwork([self.env.board, self.env.board], [self.env.isPlaying, self.env.isPlaying],
-                                        [2, 1],
-                                        [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0], 0],
-                                        [self.env.selected, None]).reshape((-1, 24, 4)),
-             np.full(fill_value=configs.FILTERS_ARRAY, shape=(2, 24, 24))],
+            encoders.prepareForNetwork([self.env.board, self.env.board], [self.env.isPlaying, self.env.isPlaying],
+                                       [2, 1],
+                                       [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0], 0],
+                                       [self.env.selected, None]).reshape((-1, 24, 4))
+            ,
             {'policy_output': np.array(
                 [[.25, 0., 0.25, 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
                   -1., 0.], [.25, 0., 0.25, 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
