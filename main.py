@@ -61,8 +61,7 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
     physical_devices = tf.config.list_physical_devices('GPU')
     for gpu_instance in physical_devices:
         tf.config.experimental.set_memory_growth(gpu_instance, True)
-    tensorboard_callback = keras.callbacks.TensorBoard(tensorboard_path, update_freq=10,
-                                                       profile_batch=2)
+    tensorboard_callback = keras.callbacks.TensorBoard(tensorboard_path, update_freq=10)
     current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                       configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
     current_Network.load_weights(in_path)
@@ -75,7 +74,7 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
                                    train_data[4]),
         {'policy_output': train_data[5],
          'value_output': train_data[6]}, epochs=configs.EPOCHS,
-        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback], shuffle=True)
+        batch_size=configs.BATCH_SIZE, callbacks=[tensorboard_callback])
     current_Network.save_weights(out_path)
 
 
