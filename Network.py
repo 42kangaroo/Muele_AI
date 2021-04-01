@@ -1,8 +1,9 @@
 import tensorflow as tf
 from tensorflow import keras
 
+
 def build_input(filters, graph, num_residual, input_layer):
-    conv = CustomConvLayer(input_layer.shape[-1], filters, graph)(input_layer)
+    conv = CustomConvLayer(filters, graph)(input_layer)
     norm = keras.layers.BatchNormalization(axis=1)(conv)
     residual = keras.layers.LeakyReLU()(norm)
     for i in range(num_residual):
@@ -11,7 +12,7 @@ def build_input(filters, graph, num_residual, input_layer):
 
 
 def build_policy(filters, graph, hidden_size, num_actions, input_layer, base_input):
-    p_conv = CustomConvLayer(filters, filters, graph)(input_layer)
+    p_conv = CustomConvLayer(filters, graph)(input_layer)
     p_norm = keras.layers.BatchNormalization(axis=1)(p_conv)
     p_relu = keras.layers.LeakyReLU()(p_norm)
     p_flatten = keras.layers.Flatten()(p_relu)
@@ -30,7 +31,7 @@ def build_policy(filters, graph, hidden_size, num_actions, input_layer, base_inp
 
 
 def build_value(filters, graph, hidden_size, input_layer):
-    v_conv = CustomConvLayer(filters, filters, graph)(input_layer)
+    v_conv = CustomConvLayer(filters, graph)(input_layer)
     v_norm = keras.layers.BatchNormalization(axis=1)(v_conv)
     v_relu = keras.layers.LeakyReLU()(v_norm)
     v_flatten = keras.layers.Flatten()(v_relu)
@@ -56,10 +57,10 @@ def get_net(filters, hidden_size, out_filters, num_action, input_shape, graph, n
 class ResidualLayer(keras.layers.Layer):
     def __init__(self, filters, graph):
         super(ResidualLayer, self).__init__()
-        self.conv1 = CustomConvLayer(filters, filters, graph)
+        self.conv1 = CustomConvLayer(filters, graph)
         self.norm1 = keras.layers.BatchNormalization(axis=1)
         self.relu1 = keras.layers.LeakyReLU()
-        self.conv2 = CustomConvLayer(filters, filters, graph)
+        self.conv2 = CustomConvLayer(filters, graph)
         self.norm2 = keras.layers.BatchNormalization(axis=1)
         self.add = keras.layers.Add()
         self.relu2 = keras.layers.LeakyReLU()
@@ -75,7 +76,7 @@ class ResidualLayer(keras.layers.Layer):
         return x
 
     def get_config(self):
-        return {"conv_filters": self.conv1.filters, "kernel_size": self.conv1.kernel_size}
+        return {}
 
 
 class SliceLayer(keras.layers.Layer):
@@ -96,12 +97,23 @@ class SliceLayer(keras.layers.Layer):
 
 
 class CustomConvLayer(keras.layers.Layer):
-    def __init__(self, in_units, filters, graph):
-        super(CustomConvLayer, self).__init__()
-        self.conv = keras.layers.Dense(filters)
+    def __init__(self, filters, graph, **kwargs):
+        import stellargraph
+        super(CustomConvLayer, self).__init__(**kwargs)
+        self.filters = filters
+        self.conv = stellargraph.layer.GraphConvolution(units=filters, activation='linear', use_bias=False)
+        self.graph = tf.constant(graph) / 5
 
     def call(self, inputs, **kwargs):
-        return self.conv(inputs)
+        graph = tf.multiply(tf.ones(shape=(tf.shape(inputs)[0], 24, 24)), self.graph)
+        return self.conv([inputs, graph])
+
+    def get_config(self):
+        config = super(CustomConvLayer, self).get_config()
+        config.update({"filters": self.filters, "graph": self.graph.numpy()})
+        return config
+
+
 
 
 def cross_entropy_with_logits(y_true, y_pred):

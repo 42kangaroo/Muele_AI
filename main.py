@@ -23,7 +23,7 @@ def execute_generate_play(nnet_path, multiplikator=configs.SIMS_FAKTOR,
     gc.collect()
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     nnet = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                           configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
+                           configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
     nnet.load_weights(nnet_path)
     env = MillEnv.MillEnv()
     mcts_ = mcts.MonteCarloTreeSearch(mcts.State(zeros((1, 24)), 0, -env.isPlaying, env))
@@ -42,9 +42,9 @@ def execute_pit(oldNet_path, newNet_path, begins, multiplikator=configs.SIMS_FAK
     gc.collect()
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     oldNet = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                             configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
+                             configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
     newNet = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                             configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
+                             configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
     oldNet.load_weights(oldNet_path)
     newNet.load_weights(newNet_path)
     winner = mcts.pit(oldNet, newNet, begins, multiplikator, exponent)
@@ -63,7 +63,7 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
         tf.config.experimental.set_memory_growth(gpu_instance, True)
     tensorboard_callback = keras.callbacks.TensorBoard(tensorboard_path, update_freq=10)
     current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                      configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
+                                      configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
     current_Network.load_weights(in_path)
     current_Network.compile(optimizer='adam',
                             loss={'policy_output': Network.cross_entropy_with_logits, 'value_output': 'mse'},
@@ -82,7 +82,7 @@ def save_first_net(path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     print("hello")
     current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                      configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
+                                      configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
     print(current_Network.summary())
     current_Network.save_weights(path)
 
@@ -90,7 +90,7 @@ def save_first_net(path):
 def save_whole_net(weights_path, model_path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                      configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
+                                      configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
     current_Network.load_weights(weights_path)
     current_Network.save(model_path)
 

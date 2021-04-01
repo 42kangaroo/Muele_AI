@@ -7,6 +7,7 @@ import MillEnv
 import configs
 import encoders
 import mcts
+import tensorflow as tf
 
 
 class NetworkTest(unittest.TestCase):
@@ -15,20 +16,20 @@ class NetworkTest(unittest.TestCase):
         import Network
         self.env = MillEnv.MillEnv()
         self.net = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-                                   configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
+                                    configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
         print(self.net.summary())
 
     def test_create(self):
         self.assertEqual(2, len(
-            self.net(encoders.prepareForNetwork([self.env.board], [self.env.isPlaying], [self.env.moveNeeded],
-                                                [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0]],
-                                                [self.env.selected]).reshape((-1, 24, 4)))))
-        self.env.makeMove(1)
-        print(self.net(
+            self.net(tf.convert_to_tensor(
+                encoders.prepareForNetwork([self.env.board], [self.env.isPlaying], [self.env.moveNeeded],
+                                           [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0]],
+                                           [self.env.selected]).reshape((-1, 24, 4))))))
+        print(self.net(tf.convert_to_tensor(
             encoders.prepareForNetwork([self.env.board, self.env.board], [self.env.isPlaying, self.env.isPlaying],
                                        [2, 1],
                                        [self.env.gamePhase[1 if self.env.isPlaying == 1 else 0], 0],
-                                       [self.env.selected, None]).reshape((-1, 24, 4))))
+                                       [self.env.selected, None]).reshape((-1, 24, 4)))))
 
     def test_fit(self):
         import Network
@@ -44,10 +45,10 @@ class NetworkTest(unittest.TestCase):
             ,
             {'policy_output': np.array(
                 [[.25, 0., 0.25, 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
-                  -1., 0.], [.25, 0., 0.25, 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
+                  -1., 0.], [.25, 0., 0.25, 0., 0., 0., 0., 0., .1, 0., 0.4, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
                              -1., 0.]]),
-                'value_output': np.array([[0.5], [-0.25]])}, epochs=1,
-            batch_size=1)
+                'value_output': np.array([[0.5], [-0.25]])}, epochs=4,
+            batch_size=2)
 
     def test_loss(self):
         import Network
@@ -55,6 +56,9 @@ class NetworkTest(unittest.TestCase):
             [.25, 0., 0.25, 0., 0., 0., 0., -1., 0., 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., .0, 0.,
              -1., 0.], [2., -1., 0.2, -1., -1., 0., 0., 0., 0., 0., 4., 0., 0., 1., 0., 0., 6., 0., 0., 1., .0, 0.,
                         5., 0.]))
+
+    def test_save(self):
+        self.net.save("models/test")
 
 
 class EncodersTest(unittest.TestCase):
@@ -140,9 +144,10 @@ class MCTSTest(unittest.TestCase):
     def setUp(self) -> None:
         self.env = MillEnv.MillEnv()
         import Network
-        self.nnet = Network.get_net(96, 3, 256, 4, 1, 76, (8, 3, 4))
+        self.nnet = Network.get_net(96, 3, 256, 4, 1, 24, (8, 3, 4))
         self.mcts = mcts.MonteCarloTreeSearch(mcts.State(np.zeros((1, 24)), 0, -self.env.isPlaying, self.env))
 
+    @unittest.skip("ray is used")
     def test_search(self):
         val = self.mcts.root.setValAndPriors(self.nnet)
         self.mcts.root.backpropagate(val)
