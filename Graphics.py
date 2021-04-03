@@ -272,5 +272,5 @@ class ModeratedGraphics(object):
 
 
 if __name__ == "__main__":
-    MCGraphics = ModeratedGraphics("run4/models/whole_net", 12, 1.05)
+    MCGraphics = ModeratedGraphics("trained_nets/conv_normal", 12, 1.05)
     MCGraphics.playLoop()
