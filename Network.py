@@ -3,6 +3,7 @@ from tensorflow import keras
 
 
 def build_input(filters, graph, num_residual, input_layer):
+    input_layer = keras.layers.Flatten()(input_layer)
     conv = CustomConvLayer(input_layer.shape[-1], filters, graph)(input_layer)
     norm = keras.layers.BatchNormalization(axis=1)(conv)
     residual = keras.layers.LeakyReLU()(norm)

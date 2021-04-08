@@ -13,7 +13,7 @@ MEMORY_ITERS = 15
 
 # RETRAINING
 
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 EPOCHS = 12
 FILTERS = 192
 OUT_FILTERS = 128
@@ -21,10 +21,10 @@ HIDDEN_SIZE = 256
 INPUT_SIZE = 24, 4
 NUM_ACTIONS = 76
 NUM_RESIDUAL = 6
-NETWORK_PATH = "run5/models/episode-"
-BEST_PATH = "run5/models/best_net.h5"
-NEW_NET_PATH = "run5/models/new_net.h5"
-TENSORBOARD_PATH = "run5/Tensorboard/episode-"
+NETWORK_PATH = "run6/models/episode-"
+BEST_PATH = "run6/models/best_net.h5"
+NEW_NET_PATH = "run6/models/new_net.h5"
+TENSORBOARD_PATH = "run6/Tensorboard/episode-"
 
 # EVAL
 
@@ -34,8 +34,8 @@ SCORING_THRESHOLD = 1.17
 # GENERAL
 NUM_CPUS = 12
 TRAINING_LOOPS = 50
-LOGGER_PATH = "run5/AlphaLog.log"
-INTERMEDIATE_SAVE_PATH = "run5/"
+LOGGER_PATH = "run6/AlphaLog.log"
+INTERMEDIATE_SAVE_PATH = "run6/"
 FILTERS_ARRAY = [[1., 1., 1., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.,
                   0., 0., 0., 0., 0., 1., 0., 0.],
                  [1., 1., 1., 0., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0.,
