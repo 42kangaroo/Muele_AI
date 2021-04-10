@@ -61,7 +61,7 @@ class MillDisplayer(object):
             self.millEnv.moveNeeded))
         for imageID in self.ImageIDArray:
             self.graph.DeleteFigure(imageID)
-        np.delete(self.ImageIDArray, np.s_[:])
+        self.ImageIDArray = np.array([])
         for case, location in zip(self.millEnv.getBoard(), self.imageLocations):
             if case == 1:
                 self.ImageIDArray = np.append(self.ImageIDArray,
