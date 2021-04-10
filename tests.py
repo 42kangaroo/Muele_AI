@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 import MillEnv
+import configs
 import encoders
 import mcts
 
@@ -12,10 +13,11 @@ import mcts
 class NetworkTest(unittest.TestCase):
 
     def setUp(self) -> None:
+        import Network
         self.env = MillEnv.MillEnv()
-        # self.net = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
-        #                            configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
-        self.net = tf.keras.models.load_model("trained_nets/selective_output_conv")
+        self.net = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
+                                   configs.NUM_ACTIONS, configs.INPUT_SIZE, configs.FILTERS_ARRAY, configs.NUM_RESIDUAL)
+        # self.net = tf.keras.models.load_model("trained_nets/selective_output_conv")
         print(self.net.summary())
 
     def test_create(self):

@@ -80,7 +80,6 @@ def train_net(in_path, out_path, train_data, tensorboard_path):
 
 def save_first_net(path):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    print("hello")
     current_Network = Network.get_net(configs.FILTERS, configs.HIDDEN_SIZE, configs.OUT_FILTERS,
                                       configs.NUM_ACTIONS, configs.INPUT_SIZE, None, configs.NUM_RESIDUAL)
     print(current_Network.summary())
