@@ -64,6 +64,5 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE)
 
 ## Other Methods
 
-I also tried to learn the game of Mill with MCTS and Reinforcement learning.
-See [AlphaZero](https://github.com/42kangaroo/Muele_AI/tree/alphaZero)
+I also tried to learn the game of Mill with AlphaZero and Reinforcement learning. See [AlphaZero](https://github.com/42kangaroo/Muele_AI/tree/alphaZero)
 and [Reinforce](https://github.com/42kangaroo/Muele_AI/tree/reinforce) branch.
