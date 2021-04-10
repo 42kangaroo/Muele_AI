@@ -20,7 +20,7 @@ algorithm. It has been parallelized with multiprocessing and uses keras and Tens
 
 To use this project, first clone the repo on your device using the command below:
 
-`git clone -b alphaZero https://github.com/42kangaroo/Muele_AI.git`
+`git clone https://github.com/42kangaroo/Muele_AI.git`
 
 Then, change to the directory and install the dependencies:
 
