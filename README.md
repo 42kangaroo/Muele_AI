@@ -11,6 +11,7 @@ Search algorithm. It has been parallelized with multiprocessing.
 * [Usage](#usage)
 * [Technologies](#technologies)
 * [Project Status](#project-status)
+* [Documentation](#documentation)
 * [License](#license)
 * [Other Methods](#other-methods)
 
@@ -58,11 +59,18 @@ I used these libraries for my project.
 The MCTS works and plays a good game, but it's very slow. So I implemented AlphaZero to have a better AI.
 See [Other Methods](#other-methods)
 
+## Documentation
+
+You can read the [documentation](https://drive.google.com/file/d/1z9zaC1zZEqTncdVrNIjXunE9AJR4O7gy/view?usp=sharing)
+and the [project paper](https://drive.google.com/file/d/1jZlc4MIeE6FR0YXaPvkx2_3wWo1mAWGn/view?usp=sharing) by following
+the links.
+
 ## License
 
 This project is licensed under the [GNU General Public License v3.0](LICENSE)
 
 ## Other Methods
 
-I also tried to learn the game of Mill with AlphaZero and Reinforcement learning. See [AlphaZero](https://github.com/42kangaroo/Muele_AI/tree/alphaZero)
+I also tried to learn the game of Mill with AlphaZero and Reinforcement learning.
+See [AlphaZero](https://github.com/42kangaroo/Muele_AI/tree/alphaZero)
 and [Reinforce](https://github.com/42kangaroo/Muele_AI/tree/reinforce) branch.
