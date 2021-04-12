@@ -13,6 +13,7 @@ Learning algorithm. It uses keras and TensorFlow for the Neural Networks.
     * [Play](#play)
 * [Technologies](#technologies)
 * [Project Status](#project-status)
+* [Documentation](#documentation)
 * [License](#license)
 * [Other Methods](#other-methods)
 
@@ -62,6 +63,12 @@ I used these libraries for my project.
 
 It is not possible to learn the game of Mill with the Reinforcement Learning strategies as it doesn't even learn valid
 moves. So I implemented MCTS and AlphaZero. See [Other Methods](#other-methods)
+
+## Documentation
+
+You can read the [documentation](https://drive.google.com/file/d/1z9zaC1zZEqTncdVrNIjXunE9AJR4O7gy/view?usp=sharing)
+and the [project paper](https://drive.google.com/file/d/1jZlc4MIeE6FR0YXaPvkx2_3wWo1mAWGn/view?usp=sharing) by following
+the links.
 
 ## License
 
