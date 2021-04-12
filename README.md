@@ -9,10 +9,12 @@ algorithm. It has been parallelized with multiprocessing and uses keras and Tens
 
 * [How to install](#how-to-install)
 * [Usage](#usage)
-    * [Training](#training)
-    * [Play](#play)
+  * [Training](#training)
+  * [Play](#play)
 * [Technologies](#technologies)
 * [Project Status](#project-status)
+* [Documentation](#documentation)
+* [Contributors](#contributors)
 * [License](#license)
 * [Other Methods](#other-methods)
 
@@ -83,6 +85,17 @@ I used these libraries for my project.
 
 I'm almost finished with this project, and I only need to train it one last time now. I don't have time to train it with
 a Graph Neural Network.
+
+## Documentation
+
+You can read the [documentation](https://drive.google.com/file/d/1z9zaC1zZEqTncdVrNIjXunE9AJR4O7gy/view?usp=sharing)
+and the [project paper](https://drive.google.com/file/d/1jZlc4MIeE6FR0YXaPvkx2_3wWo1mAWGn/view?usp=sharing) by following
+the links.
+
+## Contributors
+
+Thanks to @halloalexkern and Oliver Peyron for letting me use there computer for training. I also want to thank
+@rempfler for the tips he gave me for the Networks.
 
 ## License
 
