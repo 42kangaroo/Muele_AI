@@ -63,7 +63,7 @@ See [Other Methods](#other-methods)
 
 You can read the [documentation](https://drive.google.com/file/d/1z9zaC1zZEqTncdVrNIjXunE9AJR4O7gy/view?usp=sharing)
 and the [project paper](https://drive.google.com/file/d/1jZlc4MIeE6FR0YXaPvkx2_3wWo1mAWGn/view?usp=sharing) by following
-the links.
+the links (both in german).
 
 ## License
 
