@@ -94,8 +94,9 @@ the links (both in german).
 
 ## Contributors
 
-Thanks to @halloalexkern and Oliver Peyron for letting me use there computer for training. I also want to thank
-@rempfler for the tips he gave me for the Networks.
+Thanks to [@halloalexkern](https://github.com/halloalexkern/) and Oliver Peyron for letting me use there computer for
+training. I also want to thank
+[@rempfler](https://github.com/rempfler/) for the tips he gave me for the Networks.
 
 ## License
 
